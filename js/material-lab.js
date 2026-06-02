@@ -606,8 +606,8 @@ End Object`
             { keys: ['panner', 'rotator', 'texcoord', 'texture coordinate', 'uv'], label: 'Coordinates Material Expressions', url: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/coordinates-material-expressions-in-unreal-engine' },
             { keys: ['particle color', 'dynamic parameter'], label: 'Particle Material Expressions', url: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/particle-expressions?application_version=4.27' },
             { keys: ['constant', 'scalar', 'vector', 'parameter'], label: 'Material Parameter Expressions', url: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/material-parameter-expressions-in-unreal-engine' },
-            { keys: ['multiply', 'add', 'subtract', 'sine', 'power', 'dot', 'lerp', 'linear interp', 'smoothstep', 'step', 'one minus', 'componentmask', 'component mask', 'mask'], label: 'Math Material Expressions', url: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/math-material-expressions-in-unreal-engine' },
-            { keys: ['texture sample', 'subuv', 'flipbook', 'noise texture', 'packed texture'], label: 'Textures in Unreal Engine', url: 'https://dev.epicgames.com/documentation/unreal-engine/textures-in-unreal-engine' },
+            { keys: ['multiply', 'add', 'subtract', 'divide', 'sine', 'cosine', 'frac', 'floor', 'ceil', 'clamp', 'saturate', 'power', 'dot', 'dot product', 'cross product', 'appendvector', 'append vector', 'if', 'lerp', 'linear interp', 'smoothstep', 'step', 'one minus', 'componentmask', 'component mask', 'mask'], label: 'Math Material Expressions', url: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/math-material-expressions-in-unreal-engine' },
+            { keys: ['texture sample', 'texture object', 'subuv', 'flipbook', 'noise texture', 'packed texture'], label: 'Texture Material Expressions', url: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/texture-expressions-in-unreal-engine' },
             { keys: ['depth fade', 'scenedepth', 'scene depth', 'pixeldepth', 'pixel depth'], label: 'Depth Material Expressions', url: 'https://dev.epicgames.com/documentation/unreal-engine/depth-material-expressions-in-unreal-engine' },
             { keys: ['fresnel'], label: 'Fresnel Material Expression', url: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/using-fresnel-in-your-unreal-engine-materials' },
             { keys: ['bump', 'bumpoffset', 'parallax'], label: 'Bump Offset Material Expression', url: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/using-bump-offset-in-unreal-engine' },
@@ -616,7 +616,7 @@ End Object`
             { keys: ['emissive', 'opacity', 'opacity mask', 'normal', 'roughness', 'specular', 'output', 'material output'], label: 'Material Inputs', url: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/material-inputs-in-unreal-engine' },
             { keys: ['worldalignedtexture', 'world aligned'], label: 'Texturing Material Functions', url: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/texturing-material-functions-in-unreal-engine' }
             ,
-            { keys: ['spheremask', 'sphere mask', 'distance', 'distance field', 'distancetonearestsurface'], label: 'Utility Material Expressions', url: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/utility-material-expressions-in-unreal-engine' },
+            { keys: ['spheremask', 'sphere mask', 'distance', 'distance field', 'distancetonearestsurface', 'time', 'static switch', 'switch'], label: 'Utility Material Expressions', url: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/utility-material-expressions-in-unreal-engine' },
             { keys: ['dithertemporalaa', 'dither temporal'], label: 'DitherTemporalAA Material Expression', url: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/utility-material-expressions-in-unreal-engine' },
             { keys: ['vertex color', 'vertexcolor'], label: 'Vertex Color Materials', url: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/vertex-color-materials' },
             { keys: ['material function', 'function input', 'function output', 'material function call'], label: 'Material Functions', url: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/material-functions-in-unreal-engine' },
@@ -875,6 +875,41 @@ End Object`
                 desc: 'Desaturation과 Lerp로 피격 순간 색상 플래시, 흑백화, 상태 이상 강조를 만드는 패턴입니다.',
                 nodes: ['Texture Sample', 'Desaturation', 'LinearInterpolate', 'BaseColor'],
                 tags: 'desaturation hit flash color lerp'
+            },
+            {
+                key: 'clampsaturate',
+                title: 'Clamp / Saturate Mask Safety',
+                desc: '마스크, 알파, 발광 강도 값이 0~1 또는 지정 범위를 벗어나지 않도록 정리하는 실무 안전 패턴입니다.',
+                nodes: ['Texture Sample', 'Clamp', 'Saturate', 'Opacity Mask'],
+                tags: 'clamp saturate mask alpha opacity safe range mobile'
+            },
+            {
+                key: 'fracfloorframe',
+                title: 'Frac / Floor Frame Index',
+                desc: 'Time 기반 반복값을 Frac과 Floor로 정리해 Flipbook, 스캔라인, 프레임 인덱스 제어에 사용하는 패턴입니다.',
+                nodes: ['Time', 'Frac', 'Floor', 'Emissive'],
+                tags: 'frac floor time frame flipbook subuv animation'
+            },
+            {
+                key: 'dotdirection',
+                title: 'Dot Product Direction Mask',
+                desc: 'Normal, Camera, Light 방향 벡터의 내적으로 림, 방향성 연기, 6-way lighting 마스크를 만드는 패턴입니다.',
+                nodes: ['Vertex Normal', 'Dot Product', 'Power', 'Emissive'],
+                tags: 'dot product normal vector light direction rim smoke'
+            },
+            {
+                key: 'appendflow',
+                title: 'AppendVector Flow UV',
+                desc: 'R/G 채널 또는 두 Scalar 값을 AppendVector로 묶어 UV Offset, Flow Map, 화면 왜곡 벡터로 사용하는 패턴입니다.',
+                nodes: ['ComponentMask (R/G)', 'AppendVector', 'Add', 'Customized UVs'],
+                tags: 'append vector flow map uv offset rg distortion'
+            },
+            {
+                key: 'staticswitch',
+                title: 'Static Switch Platform Variant',
+                desc: 'Material Instance에서 고비용 기능을 플랫폼별로 컴파일 분기해 모바일/콘솔 변형을 관리하는 마스터 머터리얼 패턴입니다.',
+                nodes: ['Static Switch Parameter', 'Texture Sample', 'LinearInterpolate', 'Emissive'],
+                tags: 'static switch parameter platform mobile console variant'
             }
         ];
 

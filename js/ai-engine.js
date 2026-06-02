@@ -405,6 +405,235 @@ class VfxAiEngine {
             }
         };
  
+        this.chapters['9'] = {
+            num: '04',
+            title: 'AAA Shockwave 제작 레시피',
+            subtitle: 'Radial mask, refraction, dust ring, camera-facing sprite/ribbon를 조합한 현대식 충격파 설계',
+            content: `### AAA Shockwave Production Recipe
+중심 폭발 지점에서 얇은 링이 빠르게 확장되고, 배경이 순간적으로 휘며, 바닥 먼지와 파편이 뒤따르는 충격파 레시피입니다.
+
+#### 1. 목표 룩
+- 0.00~0.08초: 중심부 강한 섬광과 작은 원형 링 생성
+- 0.08~0.35초: 링 반경 급확장, 외곽은 Fresnel/Power로 날카롭게 유지
+- 0.20~0.70초: 바닥 먼지, 잔류 왜곡, 작은 파편이 뒤따르며 감쇠
+
+#### 2. Material Graph
+- **RadialGradientExponential** 또는 **SphereMask**로 원형 마스크를 만듭니다.
+- **Time** 또는 Niagara **Dynamic Parameter**를 Radius에 연결해 중심에서 외곽으로 확장시킵니다.
+- 링 폭은 \`SmoothStep(Radius - Width, Radius, Distance) - SmoothStep(Radius, Radius + Width, Distance)\` 구조로 만듭니다.
+- 왜곡 버전은 Normal Texture + Panner를 **Refraction** 또는 Post Process Material의 SceneTexture UV offset에 연결합니다.
+- 밝은 외곽은 RingMask * Particle Color * Scalar Parameter(20~80)를 **Emissive**에 연결합니다.
+
+#### 3. Niagara System
+- Emitter A: Sprite Renderer, Spawn Burst 1~3, Lifetime 0.25~0.45, Dynamic Parameter R=Radius, G=RingWidth, B=DistortionStrength
+- Emitter B: Dust ring, Spawn Burst 40~120, Sphere/Circle Location, Add Velocity in Cone, Drag, Curl Noise Force
+- Emitter C: debris Mesh Renderer, Spawn Burst 8~24, Collision은 가까운 히어로 컷에서만 사용
+- Bounds는 링 최대 반경보다 크게 고정하고, 카메라 컷에 따라 Scalability로 먼지 개수를 줄입니다.
+
+#### 4. AAA 체크포인트
+- 충격파 링 하나에 모든 것을 넣지 말고, **왜곡 링 / 먼지 링 / 섬광 / 파편**을 분리합니다.
+- 화면 전체를 덮는 Translucent 왜곡은 비용이 큽니다. 짧고 얇게, 컷신에서는 강하게, 게임플레이 반복 이펙트에서는 약하게 둡니다.
+- 모바일/캐주얼에서는 Refraction 대신 밝은 링 + 노이즈 마스크만 사용합니다.
+
+#### 공식 문서
+- [Material Expressions Reference](https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-material-expressions-reference)
+- [Niagara System and Emitter Module Reference](https://dev.epicgames.com/documentation/unreal-engine/system-and-emitter-module-reference-for-niagara-effects-in-unreal-engine)
+- [Post Process Materials](https://dev.epicgames.com/documentation/en-us/unreal-engine/post-process-materials-in-unreal-engine)`
+        };
+
+        this.chapters['10'] = {
+            num: '05',
+            title: 'AAA Fire 제작 레시피',
+            subtitle: 'Niagara Fluids, flipbook, ember, heat distortion를 분리한 실시간 화염 파이프라인',
+            content: `### AAA Fire Production Recipe
+최신 UE 파이프라인에서는 히어로 화염은 Niagara Fluids 또는 베이크된 flipbook으로 만들고, 게임플레이 반복 화염은 flipbook + sprite layer + ember로 최적화합니다.
+
+#### 1. 목표 룩
+- Core: 중앙부는 흰색/노란색 고온 Emissive
+- Body: 주황/붉은 화염 실루엣, 위로 흐르는 노이즈
+- Edge: Alpha erosion으로 찢어진 외곽
+- Secondary: ember, smoke, heat distortion가 시간차로 따라옵니다.
+
+#### 2. Material Graph
+- **Texture Sample Flipbook** 또는 2D noise를 **Panner**로 위쪽 흐름에 맞춥니다.
+- **Particle Color**로 Niagara 색상과 알파를 직접 받습니다.
+- **Alpha Erosion**: Noise - DissolveThreshold -> SmoothStep -> Opacity/Opacity Mask
+- **Emissive**: ParticleColor.rgb * HotMask * Scalar Parameter(30~120)
+- Heat distortion은 별도 저수명 sprite에 Normal Texture + Refraction으로 분리합니다.
+
+#### 3. Niagara System
+- Emitter A: Fire flipbook sprite, Spawn Rate 20~80, Lifetime 0.3~0.9, Scale Sprite Size over Life
+- Emitter B: Ember, Spawn Rate 10~40, Add Velocity, Curl Noise Force, Drag
+- Emitter C: Smoke follow-up, Lifetime 1.5~4.0, 낮은 alpha, 큰 sprite, SubUV Cutout
+- Hero/Cinematic: Niagara Fluids 3D Gas Fire 템플릿을 사용하고, 게임 반복용은 결과를 flipbook으로 베이크합니다.
+
+#### 4. AAA 체크포인트
+- 화염은 **색보다 알파 실루엣**이 먼저입니다. 불필요한 투명 여백을 SubUV Cutout으로 제거합니다.
+- 3D Gas는 메모리/GPU 비용이 높으므로 보스 연출, 시네마틱, 근접 히어로 컷에 제한합니다.
+- 반복 스킬은 2D flipbook + ember + smoke 레이어 조합이 안정적입니다.
+
+#### 공식 문서
+- [Niagara Fluids](https://dev.epicgames.com/documentation/en-us/unreal-engine/niagara-fluids-in-unreal-engine)
+- [Niagara Fluids Reference](https://dev.epicgames.com/documentation/unreal-engine/niagara-fluids-reference-in-unreal-engine)
+- [Texture Material Expressions](https://dev.epicgames.com/documentation/en-us/unreal-engine/texture-expressions-in-unreal-engine)`
+        };
+
+        this.chapters['11'] = {
+            num: '06',
+            title: 'AAA Smoke 제작 레시피',
+            subtitle: '6-way lighting, volumetric flipbook, soft particle, overdraw 제어 중심의 연기 설계',
+            content: `### AAA Smoke Production Recipe
+AAA 연기는 "많은 반투명 스프라이트"가 아니라, 조명 방향을 느끼는 flipbook과 부드러운 깊이 감쇠, 낮은 spawn count의 레이어 설계가 핵심입니다.
+
+#### 1. 목표 룩
+- 초기: 폭발 직후 밀도 높은 어두운 코어
+- 중기: Curl Noise로 찢어지는 부피감
+- 후기: 큰 입자가 천천히 확산되며 alpha fade out
+
+#### 2. Material Graph
+- 6-way smoke texture가 있으면 Light Vector와 채널을 조합해 가짜 볼륨 조명을 만듭니다.
+- 일반 smoke는 Texture Sample + DepthFade + Particle Color Alpha를 Opacity에 곱합니다.
+- 가장자리 딱딱함은 **DepthFade**와 soft noise mask로 줄입니다.
+- Normal/lighting 텍스처가 있는 경우 지나친 Emissive 대신 낮은 Unlit/Lit 조합을 선택합니다.
+
+#### 3. Niagara System
+- Emitter A: dense core smoke, Spawn Burst 12~40, Lifetime 1.0~2.5
+- Emitter B: large soft smoke, Spawn Rate 4~18, Lifetime 3.0~7.0, Scale Sprite Size over Life
+- Emitter C: ash/dust specks, 작은 sprite, 낮은 alpha
+- Update: Curl Noise Force, Drag, Wind Force를 약하게 섞고 Fixed Bounds를 넉넉히 둡니다.
+
+#### 4. AAA 체크포인트
+- 연기는 Overdraw가 가장 큰 병목입니다. 큰 sprite 수를 줄이고 texture alpha margin을 정리합니다.
+- 가까운 카메라에서는 큰 입자 수보다 flipbook 품질과 depth softening이 더 중요합니다.
+- 모바일은 6-way 대신 단일 flipbook + Vertex Color/Particle Color tint로 대체합니다.
+
+#### 공식 문서
+- [Niagara Fluids Reference](https://dev.epicgames.com/documentation/unreal-engine/niagara-fluids-reference-in-unreal-engine)
+- [Depth Material Expressions](https://dev.epicgames.com/documentation/unreal-engine/depth-material-expressions-in-unreal-engine)
+- [Niagara System and Emitter Module Reference](https://dev.epicgames.com/documentation/unreal-engine/system-and-emitter-module-reference-for-niagara-effects-in-unreal-engine)`
+        };
+
+        this.chapters['12'] = {
+            num: '07',
+            title: 'AAA Water 제작 레시피',
+            subtitle: 'Shallow Water, ripple decal, splash sprite, refraction/foam를 분리한 물 이펙트 설계',
+            content: `### AAA Water Production Recipe
+물 이펙트는 수면 반응, 물보라, 거품, 굴절을 분리해야 제어가 쉽습니다. 히어로 컷은 Niagara Fluids/Shallow Water, 반복 gameplay는 ripple decal + splash flipbook이 안정적입니다.
+
+#### 1. 목표 룩
+- Impact: 충돌 지점에서 하얀 foam ring과 작은 splash
+- Ripple: 원형 파문이 수면 위로 확장
+- Droplet: 포물선 물방울이 짧게 튀고 중력으로 낙하
+- Surface: 경계부는 DepthFade로 부드럽게 섞입니다.
+
+#### 2. Material Graph
+- Ripple: RadialGradient/SphereMask + Time Radius + Normal Map
+- Foam: DepthFade 또는 SceneDepth 차이를 이용해 흰색 거품 마스크 생성
+- Water splash: Flipbook Texture Sample + Particle Color Alpha
+- Refraction은 고급 플랫폼에서만 강하게 사용하고, 모바일은 Normal/Emissive/Opacity 중심으로 대체합니다.
+
+#### 3. Niagara System
+- Emitter A: splash sprite, Spawn Burst 16~60, Add Velocity in Cone, Gravity, Drag
+- Emitter B: ripple decal 또는 flat mesh ring, Dynamic Parameter R=Radius
+- Emitter C: droplets mesh/sprite, Collision은 가까운 컷에서만 사용
+- Water surface gameplay는 Blueprint에서 hit location을 받아 User Parameter로 중심점을 전달합니다.
+
+#### 4. AAA 체크포인트
+- 물은 투명/굴절/깊이 연산이 겹치면 비용이 빠르게 올라갑니다.
+- Ripple은 Decal 또는 flat mesh로 분리하면 수면 머터리얼을 매번 복잡하게 만들지 않아도 됩니다.
+- 반복 충돌은 object pooling과 Auto Release를 사용합니다.
+
+#### 공식 문서
+- [Niagara Fluids](https://dev.epicgames.com/documentation/en-us/unreal-engine/niagara-fluids-in-unreal-engine)
+- [Niagara Fluids Reference](https://dev.epicgames.com/documentation/unreal-engine/niagara-fluids-reference-in-unreal-engine)
+- [Material Properties: Refraction](https://dev.epicgames.com/documentation/unreal-engine/unreal-engine-material-properties?lang=en-US)`
+        };
+
+        this.chapters['13'] = {
+            num: '08',
+            title: 'AAA Lava Crack Decal 제작 레시피',
+            subtitle: 'Niagara 충돌/스폰과 연동되는 중심 확장형 melt/dissolve 용암 균열 DBuffer Decal',
+            content: `### AAA Lava Crack Decal Production Recipe
+나이아가라 파티클 시스템과 연동되어 중심에서 외곽으로 확장되고, 실제 땅이 파인 듯한 깊이감까지 표현하는 melt/dissolve형 용암 균열 데칼 머터리얼입니다.
+
+#### 1. 목표 룩
+- 중심 충돌 지점에서 균열이 방사형으로 퍼집니다.
+- 균열 내부는 BumpOffset/Parallax 느낌으로 아래로 파인 듯 보입니다.
+- 내부 용암은 강한 Emissive와 흐르는 Panner noise를 가집니다.
+- 외곽은 Dissolve noise로 자연스럽게 녹아 사라집니다.
+
+#### 2. Decal Material 설정
+- Material Domain: **Deferred Decal**
+- Blend Mode: **Translucent** 또는 Alpha Composite
+- Decal Blend Mode: Color / Normal / Roughness가 필요한 채널만 사용
+- Texture 구성: Crack Mask, Height Map, Lava Flow Noise, Normal Map, Roughness Mask
+- BumpOffset은 Height Map으로 UV를 밀어 균열 내부가 내려간 듯한 착시를 만듭니다.
+
+#### 3. Material Graph
+- World/Decal UV -> SphereMask 또는 radial distance로 확장 마스크 생성
+- Dynamic Parameter R = GrowRadius, G = DissolveAmount, B = EmissiveBoost
+- CrackMask * SmoothStep(GrowRadius)로 중심 확장
+- HeightMap -> BumpOffset -> Lava Texture Sample
+- LavaFlow = Panner Noise A * Panner Noise B
+- Emissive = LavaMask * LavaColor * EmissiveBoost(40~150)
+- Opacity = CrackMask * GrowMask * OneMinus(DissolveMask) * EdgeSoftness
+
+#### 4. Niagara 연동
+- 충돌형: projectile Niagara 또는 Blueprint hit event에서 위치/normal을 받아 Decal Actor 또는 Niagara decal renderer를 spawn합니다.
+- 생성형: 중심점 User Parameter를 넘기고 Dynamic Parameter로 GrowRadius를 0 -> 1까지 커브 구동합니다.
+- 보조 emitter: crack edge ember, heat haze, smoke wisp를 따로 둡니다.
+- Decal Component는 Set Fade Out으로 수명을 관리하고, Sort Order는 겹치는 마법진/탄흔과 충돌하지 않게 정합니다.
+
+#### 5. AAA 체크포인트
+- DBuffer decal은 화면 점유율과 머터리얼 복잡도가 비용 핵심입니다.
+- 모바일은 DBuffer decal 지원 경로가 제한되므로 mesh decal 또는 flat mesh material fallback을 준비합니다.
+- Normal/Roughness 채널이 필요 없는 스타일라이즈 균열은 Color/Emissive 중심으로 단순화합니다.
+
+#### 공식 문서
+- [Decal Materials](https://dev.epicgames.com/documentation/en-us/unreal-engine/decal-materials-in-unreal-engine)
+- [Decals](https://dev.epicgames.com/documentation/unreal-engine/decals-in-unreal-engine)
+- [Using Bump Offset](https://dev.epicgames.com/documentation/en-us/unreal-engine/using-bump-offset-in-unreal-engine)
+- [Niagara Blueprint API](https://dev.epicgames.com/documentation/en-us/unreal-engine/BlueprintAPI/Niagara)`
+        };
+
+        this.chapters['14'] = {
+            num: '09',
+            title: 'AAA Dissolve / Vanish 제작 레시피',
+            subtitle: 'Masked dissolve, edge glow, debris spawn, material-parameter sync 기반 소멸 연출',
+            content: `### AAA Dissolve / Vanish Production Recipe
+캐릭터, 오브젝트, 보호막, 소환체가 고급스럽게 생성/소멸하는 레시피입니다. 핵심은 Masked 머터리얼, 노이즈 임계값, edge glow, Niagara 보조 파티클의 동기화입니다.
+
+#### 1. 목표 룩
+- Surface가 노이즈 패턴을 따라 잘려 나갑니다.
+- 경계부는 밝은 edge glow가 생깁니다.
+- 잘려 나가는 경계에서 ember, dust, pixel shard가 발생합니다.
+- 소멸 완료 후 잔류 연기나 반짝임이 짧게 남습니다.
+
+#### 2. Material Graph
+- Noise Texture 또는 Absolute World Position 기반 3D noise를 준비합니다.
+- DissolveMask = SmoothStep(DissolveAmount, DissolveAmount + EdgeWidth, Noise)
+- Opacity Mask = DissolveMask
+- EdgeMask = SmoothStep(DissolveAmount, DissolveAmount + EdgeWidth, Noise) - SmoothStep(DissolveAmount + EdgeWidth, DissolveAmount + EdgeWidth * 2, Noise)
+- Emissive = EdgeMask * EdgeColor * EdgeBoost(20~100)
+- Material은 가능한 **Masked**로 유지하고 Translucent 전환은 피합니다.
+
+#### 3. Niagara 연동
+- Blueprint 또는 Sequencer에서 Material Instance Dynamic의 DissolveAmount를 0 -> 1로 구동합니다.
+- Niagara에는 같은 값을 User Parameter로 전달해 경계부 파티클 spawn probability에 사용합니다.
+- Mesh surface sampling을 사용하면 현재 dissolve threshold 근처에서만 dust/ember를 생성할 수 있습니다.
+- GPU Compute Sim은 대량 파티클에 유리하지만 Bounds를 반드시 고정합니다.
+
+#### 4. AAA 체크포인트
+- 캐릭터는 월드 좌표 noise와 로컬 UV noise를 섞어 반복 티를 줄입니다.
+- 소멸 방향성이 필요하면 ObjectPositionWS 기준 height mask를 섞습니다.
+- 네트워크 게임에서는 DissolveAmount를 replicated gameplay time으로 계산해 클라이언트 간 싱크를 맞춥니다.
+
+#### 공식 문서
+- [Material Expressions Reference](https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-material-expressions-reference)
+- [Material Parameter Expressions](https://dev.epicgames.com/documentation/en-us/unreal-engine/material-parameter-expressions-in-unreal-engine)
+- [Niagara System and Emitter Module Reference](https://dev.epicgames.com/documentation/unreal-engine/system-and-emitter-module-reference-for-niagara-effects-in-unreal-engine)`
+        };
+
         // Complete detailed VFX keyword dictionary
         this.glossary = {
             '초보': this.chapters['0'],

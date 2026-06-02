@@ -1068,5 +1068,220 @@ class DocsGlossary {
    - 실제 3D 스태틱 메쉬(Static Mesh 에셋) 데이터를 각 입자 위치에 얹어 입체 파편을 비산합니다.`
             }
         ];
+        this.addOfficialReferenceSupplements();
+        this.addRequestedNiagaraModuleCatalog();
+        this.addKoreanSearchAliases();
+    }
+
+    addOfficialReferenceSupplements() {
+        const niagaraDoc = 'https://dev.epicgames.com/documentation/en-us/unreal-engine/niagara-system-and-emitter-module-reference';
+        const materialDocs = {
+            math: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/math-material-expressions-in-unreal-engine',
+            coordinates: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/coordinates-material-expressions-in-unreal-engine',
+            vector: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/vector-material-expressions-in-unreal-engine',
+            utility: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/utility-material-expressions-in-unreal-engine',
+            parameters: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/material-parameter-expressions-in-unreal-engine',
+            depth: 'https://dev.epicgames.com/documentation/unreal-engine/depth-material-expressions-in-unreal-engine',
+            texture: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/texture-expressions-in-unreal-engine',
+            inputs: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/material-inputs-in-unreal-engine',
+            functions: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/material-functions-in-unreal-engine'
+        };
+
+        const addTerm = (entry) => {
+            const exists = this.terms.some(t => this.normalizeSearchText(t.term).includes(this.normalizeSearchText(entry.term)));
+            if (!exists) this.terms.push(entry);
+        };
+
+        [
+            ['System State', 'niagara', 'Niagara System', '시스템 루프, 생명주기, 활성/비활성 상태를 관리하는 시스템 단계 모듈입니다.', '루프형 오라, 지속형 불꽃, 한 번 재생 후 종료되는 폭발을 구분할 때 먼저 확인합니다.', 'Loop Behavior, Life Cycle Mode, Inactive Response를 프로젝트 규칙에 맞춥니다.', `${niagaraDoc}#systemstate`, ['시스템스테이트', '시스템 상태', '루프', '라이프사이클', 'lifecycle']],
+            ['Emitter State', 'niagara', 'Niagara Emitter', '이미터의 반복 방식, 시뮬레이션 타깃, 비활성 처리를 관리하는 Emitter 단계 모듈입니다.', 'CPU Sim과 GPU Compute Sim 선택, 반복 횟수, 완료 후 동작을 정하는 기준점입니다.', 'Emitter State에서 Loop Duration과 Sim Target을 먼저 확정한 뒤 Spawn/Update를 설계합니다.', `${niagaraDoc}#emitterstate`, ['이미터스테이트', '이미터 상태', 'sim target', '시뮬레이션 타겟']],
+            ['Update Age', 'niagara', 'Particle Update', '파티클 나이를 증가시키고 Normalized Age를 계산하는 기본 업데이트 모듈입니다.', 'Color over Lifetime, Size over Lifetime 같은 수명 기반 커브가 제대로 작동하려면 기준 시간이 필요합니다.', 'Age / Lifetime 값을 기준으로 0~1 NormalizedAge를 만들고 후속 커브 모듈에서 사용합니다.', `${niagaraDoc}#updateage`, ['업데이트에이지', '나이', '에이지', 'age', 'normalized age', '노멀라이즈드에이지']],
+            ['Set Variables', 'niagara', 'Parameter / Utility', 'Niagara 변수 값을 직접 세팅하거나 User Parameter, Renderer Binding 전 단계 값을 정리하는 모듈입니다.', '게임플레이 값, Blueprint 입력값, 커스텀 Scratch Pad 결과를 명확한 변수로 저장할 때 사용합니다.', 'Set Variables로 User.Scale, Particles.Color 같은 값을 정리한 뒤 Renderer 또는 Material로 전달합니다.', `${niagaraDoc}#setvariables`, ['셋베리어블', '셋 변수', '변수설정', '유저파라미터', 'user parameter']],
+            ['Orient to Vector', 'niagara', 'Particle Update', '파티클 방향을 지정한 벡터나 속도 방향에 맞춰 회전시키는 정렬 모듈입니다.', '화살, 검기, 리본 조각처럼 진행 방향을 바라봐야 하는 파티클에 필요합니다.', 'Velocity 또는 커스텀 방향 벡터를 기준으로 Sprite/Mesh 방향을 맞춥니다.', `${niagaraDoc}#orienttovector`, ['오리엔트투벡터', '방향정렬', '벡터정렬', '회전', '방향']],
+            ['Camera Offset', 'niagara', 'Renderer / Depth', '카메라 방향 기준으로 파티클 렌더 위치를 앞뒤로 살짝 이동해 교차/깜빡임을 줄이는 모듈입니다.', '지면과 맞닿은 스프라이트, 충격파 링, 얇은 연기에서 Z-fighting이나 깊이 충돌을 줄입니다.', 'Camera Offset을 작게 주고 Bounds와 Depth Fade를 함께 확인합니다.', `${niagaraDoc}#cameraoffset`, ['카메라오프셋', '오프셋', '깊이', 'depth', 'z fighting']],
+            ['Scale Ribbon Width', 'niagara', 'Ribbon Renderer', '수명이나 커브에 따라 리본 폭을 키우거나 줄이는 업데이트 모듈입니다.', '검기, 번개, 궤적 꼬리가 끝으로 갈수록 가늘어지는 형태를 만들 때 사용합니다.', 'NormalizedAge 커브로 시작/중간/끝 폭을 제어합니다.', `${niagaraDoc}#scaleribbonwidth`, ['스케일리본위드스', '리본폭', '리본 사이즈', '폭', 'width', '트레일폭']],
+            ['Distance Field Collision', 'niagara', 'Collision', 'Mesh Distance Field를 이용해 파티클이 월드 표면과 상호작용하도록 만드는 충돌 계열 모듈입니다.', 'GPU 파티클에서 넓은 월드 충돌 느낌을 만들 때 유용하지만 Distance Field 세팅과 비용을 같이 봐야 합니다.', 'Distance Field 활성화, 충돌 반경, 표면 감쇄를 함께 조정합니다.', `${niagaraDoc}#distancefieldcollision`, ['디스턴스필드콜리전', '거리필드충돌', '충돌', 'collision', 'df collision']],
+            ['Sample Texture', 'niagara', 'Sampling', '텍스처 픽셀 값을 Niagara 데이터로 샘플링해 위치, 색상, 밀도, 마스크로 활용하는 모듈입니다.', '이미지 기반 스폰, 마스크 기반 파티클 분포, 색상 추출 이펙트에 사용합니다.', 'UV 또는 위치 값을 텍스처 좌표로 변환해 RGBA 데이터를 읽습니다.', `${niagaraDoc}#sampletexture`, ['샘플텍스처', '텍스처샘플', '텍스쳐', 'texture sample', '마스크샘플']]
+        ].forEach(([term, cat, catName, def, why, formula, epicLink, aliases]) => addTerm({
+            term, cat, catName, def, why,
+            platform: 'PC, Console, Mobile - 모듈 비용과 데이터 소스에 따라 플랫폼별 검증 필요',
+            formula, epicLink, aliases
+        }));
+
+        [
+            ['Texture Sample', 'Texture Expressions', '텍스처의 RGB/A 값을 읽어 Base Color, Emissive, Opacity, Normal 등에 전달하는 기본 노드입니다.', 'VFX 그래프 대부분의 출발점이며 샘플 수가 곧 셰이더 비용으로 이어집니다.', '마스크는 채널 패킹으로 줄이고 Normal은 Sampler Type을 Normal로 맞춥니다.', materialDocs.texture, ['텍스처샘플', '텍스쳐샘플', '샘플텍스처', 'texture', '텍스처']],
+            ['Texture Object', 'Texture Expressions', 'Material Function이나 WorldAlignedTexture 같은 함수에 텍스처 자산 자체를 넘기는 노드입니다.', '반복 함수화된 셰이더에서 텍스처 입력을 파라미터화할 때 필요합니다.', 'Texture Object -> Material Function Input으로 연결해 함수 재사용성을 높입니다.', materialDocs.texture, ['텍스처오브젝트', '텍스쳐오브젝트', 'texture object']],
+            ['Texture Coordinate', 'Coordinates Expressions', 'UV 좌표를 제공하고 Tiling 값을 조정하는 기본 좌표 노드입니다.', 'Panner, Rotator, Texture Sample 앞단에서 UV 스케일을 결정합니다.', 'UTiling/VTiling으로 반복 수를 조정하고 필요한 경우 Customized UVs로 비용을 줄입니다.', materialDocs.coordinates, ['텍스처코디네이트', '텍스코드', 'texcoord', 'uv', '유브이']],
+            ['Panner', 'Coordinates Expressions', '시간에 따라 UV를 X/Y 방향으로 이동시키는 노드입니다.', '흐르는 에너지, 연기, 물, 마법진 스크롤에 가장 자주 쓰입니다.', 'TexCoord와 Time을 입력하고 Speed X/Y로 흐름 방향과 속도를 정합니다.', materialDocs.coordinates, ['패너', '패닝', '흐름', '스크롤', '이동', '타임']],
+            ['Rotator', 'Coordinates Expressions', 'UV를 중심점 기준으로 회전시키는 좌표 노드입니다.', '마법진, 포탈, 회오리, 원형 충격파 텍스처 회전에 사용합니다.', 'Center와 Speed를 조정하고 Panner와 조합해 복합 움직임을 만듭니다.', materialDocs.coordinates, ['로테이터', '회전', 'uv회전', '돌리기']],
+            ['Time', 'Constants / Utility', '재생 시간을 출력해 Panner, Sine, 애니메이션 연산을 구동하는 시간 노드입니다.', '움직이는 머터리얼의 공통 시계 역할을 합니다.', 'Time * Speed -> Sine/Panner/Frac 조합으로 반복 애니메이션을 만듭니다.', materialDocs.utility, ['타임', '시간', '시간노드', '애니메이션', '움직임']],
+            ['Sine', 'Math Expressions', '입력값을 사인 파형으로 변환해 -1~1 주기 신호를 만드는 수학 노드입니다.', '깜빡임, 맥동, 물결, WPO 흔들림을 만들 때 사용합니다.', 'Time * Speed -> Sine -> Multiply로 진폭을 조절합니다.', materialDocs.math, ['사인', '싸인', '파형', '웨이브', '깜빡임']],
+            ['Cosine', 'Math Expressions', 'Sine과 같은 주기 파형이지만 위상이 다른 코사인 값을 출력합니다.', '두 파형을 섞어 좀 더 복잡한 흔들림이나 오프셋을 만들 수 있습니다.', 'Time 기반 주기 신호를 만들고 Multiply/Add로 범위를 조절합니다.', materialDocs.math, ['코사인', 'cos', '파형', '웨이브']],
+            ['Frac', 'Math Expressions', '입력값의 소수부만 반환해 0~1 반복 램프를 만드는 노드입니다.', 'Flipbook 보간, 반복 스캔라인, 루프형 마스크에 유용합니다.', 'Frac(Time * Speed)로 0~1 반복 값을 만듭니다.', materialDocs.math, ['프랙', '소수부', '반복', '루프', 'loop']],
+            ['Floor', 'Math Expressions', '입력값보다 작거나 같은 가장 가까운 정수로 내림합니다.', 'Flipbook 프레임 인덱스, 계단식 마스크, 픽셀화 패턴에 사용합니다.', 'Floor(FrameFloat)로 안정적인 프레임 번호를 만듭니다.', materialDocs.math, ['플로어', '내림', '정수', '프레임']],
+            ['Ceil', 'Math Expressions', '입력값보다 크거나 같은 가장 가까운 정수로 올림합니다.', '마스크 단계 처리나 특정 임계값 이후 반응을 만들 때 사용합니다.', 'Ceil(Value)로 계단형 변화를 만듭니다.', materialDocs.math, ['실링', '올림', '정수']],
+            ['Clamp', 'Math Expressions', '값을 지정한 최소/최대 범위 안으로 제한합니다.', 'Emissive, Opacity, UV 연산이 과도하게 튀는 것을 막습니다.', 'Clamp(Value, 0, 1)로 마스크 값을 안정화합니다.', materialDocs.math, ['클램프', '제한', '범위', '0to1']],
+            ['Saturate', 'Math Expressions', '값을 0~1 범위로 빠르게 제한하는 노드입니다.', '마스크, 알파, Depth 계산의 마지막 안정화 단계로 자주 씁니다.', 'Subtract/Divide 결과를 Saturate해 음수나 1 초과를 제거합니다.', materialDocs.math, ['새츄레이트', '세츄레이트', '0~1', '알파정리']],
+            ['One Minus', 'Math Expressions', '1 - 입력값을 반환해 마스크를 반전합니다.', '검은 영역과 흰 영역을 뒤집거나 페이드 방향을 반전할 때 사용합니다.', 'OneMinus(Alpha)로 사라짐/나타남 방향을 바꿉니다.', materialDocs.math, ['원마이너스', '반전', '인버트', '뒤집기']],
+            ['LinearInterpolate', 'Math Expressions', 'A와 B를 Alpha 값으로 보간하는 Lerp 노드입니다.', '색상 전환, 마스크 블렌드, 히트 플래시, 그라디언트에 사용합니다.', 'Lerp(A, B, Mask) 구조로 두 결과를 섞습니다.', materialDocs.math, ['lerp', '러프', '럽', '리니어인터폴레이트', '보간', '섞기']],
+            ['Power', 'Math Expressions', '입력값을 지수로 올려 대비와 감쇠 곡선을 조절합니다.', 'Fresnel Rim, 원형 마스크, 발광 중심부 강조에 사용합니다.', 'Power(Mask, Exponent)로 경계를 날카롭게 하거나 부드럽게 만듭니다.', materialDocs.math, ['파워', '지수', '대비', '엣지']],
+            ['Dot Product', 'Math Expressions', '두 벡터의 방향 유사도를 계산합니다.', '조명 방향, 카메라 방향, 6-way smoke, 림 마스크의 기초 연산입니다.', 'Dot(Normal, LightVector)를 0~1로 보정해 방향성 마스크를 만듭니다.', materialDocs.math, ['닷프로덕트', '내적', '방향', '벡터']],
+            ['Cross Product', 'Math Expressions', '두 벡터에 수직인 벡터를 계산합니다.', '방향 벡터 기반 리본/메시 정렬 보조 계산에 사용합니다.', 'Cross(A, B)로 두 방향에 수직인 축을 구합니다.', materialDocs.math, ['크로스프로덕트', '외적', '수직벡터']],
+            ['AppendVector', 'Math Expressions', '두 값을 이어 붙여 2D/3D/4D 벡터를 만듭니다.', 'RG flow vector, UV offset, 채널 재조합에 자주 사용합니다.', 'Append(R, G) -> UV Offset처럼 채널을 벡터로 묶습니다.', materialDocs.math, ['어펜드벡터', 'append', '벡터합치기', 'rg']],
+            ['ComponentMask', 'Math Expressions', '벡터에서 R/G/B/A 또는 X/Y/Z/W 일부 채널만 추출합니다.', '채널 패킹 마스크, 알파 추출, RGB 분리에 필수입니다.', 'Texture Sample RGBA -> ComponentMask(R)로 특정 마스크만 꺼냅니다.', materialDocs.math, ['컴포넌트마스크', '마스크', '채널', 'r채널', '알파']],
+            ['If', 'Math Expressions', 'A와 B 비교 결과에 따라 다른 값을 출력하는 조건 노드입니다.', '임계값 기반 분기, 하드한 스타일라이즈 마스크에 사용하지만 비용과 가독성을 고려해야 합니다.', 'A > B일 때 밝은 값, 아니면 어두운 값을 출력합니다.', materialDocs.math, ['이프', '조건', '분기', '비교']],
+            ['SmoothStep', 'Math Expressions', '두 임계값 사이를 부드럽게 보간해 마스크 경계를 정리하는 노드입니다.', '디졸브, 소프트 마스크, 에지 글로우 폭 제어에 사용합니다.', 'SmoothStep(Min, Max, Value)로 경계가 부드러운 0~1 마스크를 만듭니다.', materialDocs.math, ['스무스스텝', '스무스', '부드러운마스크', '디졸브']],
+            ['Step', 'Math Expressions', '임계값 기준으로 0 또는 1을 출력하는 하드 마스크 노드입니다.', '셀룩 화염, 픽셀 컷, 강한 임계값 스타일에 사용합니다.', 'Step(Threshold, Value)로 칼같은 마스크를 만듭니다.', materialDocs.math, ['스텝', '하드마스크', '임계값', '셀룩']],
+            ['Fresnel', 'Utility Expressions', '표면 법선과 카메라 방향의 각도 차이로 외곽 림 마스크를 만듭니다.', '쉴드, 홀로그램, 에너지 외곽선, 얼음 림 라이트에 자주 쓰입니다.', 'Fresnel -> Power -> Multiply Emissive가 기본 패턴입니다.', 'https://dev.epicgames.com/documentation/en-us/unreal-engine/using-fresnel-in-your-unreal-engine-materials', ['프레넬', '림라이트', '외곽선', 'rim']],
+            ['SphereMask', 'Utility Expressions', '두 위치 사이 거리와 반경/경도값으로 구형 마스크를 만듭니다.', '원형 생성, 충격 범위, 디졸브 확장, 월드 위치 기반 리빌에 사용합니다.', 'SphereMask(WorldPosition, Center, Radius, Hardness)로 0~1 마스크를 만듭니다.', materialDocs.utility, ['스피어마스크', '구마스크', '원형마스크', '범위']],
+            ['DitherTemporalAA', 'Utility Expressions', 'Temporal AA를 이용해 Masked 페이드를 반투명처럼 보이게 하는 노드입니다.', 'Translucent 비용을 피하고 오브젝트 페이드나 디졸브를 처리할 때 사용합니다.', 'Alpha -> DitherTemporalAA -> Opacity Mask로 연결합니다.', materialDocs.utility, ['디더taa', '디더', '페이드', 'masked fade']],
+            ['DepthFade', 'Depth Expressions', '카메라 깊이 차이를 이용해 반투명 파티클과 지오메트리 경계를 부드럽게 만듭니다.', '연기, 물, 먼지, 소프트 파티클 가장자리 처리에 필수입니다.', 'DepthFade(FadeDistance) 값을 Opacity에 곱합니다.', materialDocs.depth, ['뎁스페이드', '뎁스 페이드', '소프트파티클', '깊이페이드']],
+            ['SceneDepth', 'Depth Expressions', '화면의 씬 깊이 값을 읽어 깊이 기반 마스크와 왜곡을 만듭니다.', '소프트 파티클, 수면 교차, 포스트 프로세스 깊이 효과에 사용합니다.', 'SceneDepth - PixelDepth 결과를 Saturate해 교차 마스크를 만듭니다.', materialDocs.depth, ['씬뎁스', '씬 뎁스', '깊이', 'depth']],
+            ['PixelDepth', 'Depth Expressions', '현재 픽셀의 카메라 기준 깊이를 반환합니다.', '카메라 근접 페이드, 깊이 기반 감쇠, 화면 점유율 보정에 사용합니다.', 'PixelDepth / DistanceScale -> Saturate로 근접 페이드를 만듭니다.', materialDocs.depth, ['픽셀뎁스', '픽셀 뎁스', '카메라깊이']],
+            ['World Position Offset', 'Material Inputs', '버텍스 위치를 셰이더에서 이동시키는 Material Output 입력입니다.', '바람 흔들림, 에너지 표면 진동, 메시 파티클 변형에 사용합니다.', 'Time/Sine/Noise 결과를 작게 곱해 WPO에 연결합니다.', materialDocs.inputs, ['wpo', '월드포지션오프셋', '버텍스오프셋', '흔들림']],
+            ['WorldAlignedTexture', 'Material Functions', '메시 UV 대신 월드 좌표 기준으로 텍스처를 투영하는 함수입니다.', '지형, 데칼성 표면, 여러 메시를 관통하는 연속 패턴에 유용합니다.', 'Texture Object와 World Position을 기준으로 월드 스케일 텍스처를 만듭니다.', materialDocs.functions, ['월드얼라인드', '월드얼라인텍스처', '월드uv', '타일링']],
+            ['Scalar Parameter', 'Parameter Expressions', 'Material Instance나 Blueprint에서 조절 가능한 단일 숫자 파라미터입니다.', '강도, 속도, 디졸브 양, Fade 값을 런타임에서 조절할 때 씁니다.', 'Scalar Parameter를 Multiply, Lerp Alpha, Threshold에 연결합니다.', materialDocs.parameters, ['스칼라파라미터', '스칼라', '파라미터', '값조절']],
+            ['Vector Parameter', 'Parameter Expressions', 'Material Instance나 Blueprint에서 조절 가능한 컬러/벡터 파라미터입니다.', '색상 변경, 팀 컬러, 속성별 이펙트 컬러 변환에 사용합니다.', 'Vector Parameter * EmissivePower로 발광 컬러를 제어합니다.', materialDocs.parameters, ['벡터파라미터', '컬러파라미터', '색상', '컬러']],
+            ['Static Switch Parameter', 'Parameter Expressions', 'Material Instance에서 분기 구조를 켜고 끄는 정적 스위치 파라미터입니다.', '플랫폼별 기능 On/Off, 고급/저급 셰이더 변형을 하나의 마스터에서 관리할 때 사용합니다.', 'UseRefraction 같은 Static Switch로 고비용 경로를 컴파일 단계에서 제거합니다.', materialDocs.parameters, ['스태틱스위치', '스위치', '플랫폼분기', '옵션']]
+        ].forEach(([term, catName, def, why, formula, epicLink, aliases]) => addTerm({
+            term, cat: 'material', catName, def, why,
+            platform: 'PC, Console, Mobile - 노드 비용은 샘플 수, 분기, 반투명 면적에 따라 검증 필요',
+            formula, epicLink, aliases
+        }));
+    }
+
+    addKoreanSearchAliases() {
+        const aliasMap = [
+            [/scale color|color over lifetime|color/i, ['컬러오버라이프타임', '컬러 오버 라이프타임', '컬러', '색상', '알파', '페이드', '수명색상']],
+            [/scale sprite size|sprite size|size over lifetime|size/i, ['사이즈오버라이프타임', '사이즈 오버 라이프타임', '사이즈', '크기', '스케일', '스프라이트사이즈']],
+            [/scale mesh size|mesh size/i, ['메시사이즈', '메쉬사이즈', '사이즈', '크기', '스케일']],
+            [/scale ribbon width|ribbon width/i, ['리본사이즈', '리본폭', '폭', '스케일', '트레일폭']],
+            [/spawn rate/i, ['스폰레이트', '스폰 레이트', '생성률', '스폰', '레이트']],
+            [/spawn burst/i, ['스폰버스트', '스폰 버스트', '버스트', '순간생성']],
+            [/initialize particle/i, ['이니셜라이즈파티클', '초기화', '라이프타임', '수명', '컬러', '사이즈']],
+            [/add velocity/i, ['애드벨로시티', '속도', '벨로시티', '방향', '발사']],
+            [/gravity/i, ['그래비티', '중력', '낙하']],
+            [/drag/i, ['드래그', '감속', '저항']],
+            [/curl noise/i, ['컬노이즈', '컬 노이즈', '노이즈', '소용돌이']],
+            [/vortex/i, ['보텍스', '볼텍스', '회오리', '소용돌이']],
+            [/collision/i, ['콜리전', '충돌']],
+            [/subuv|flipbook/i, ['서브유브이', '서브uv', '플립북', '애니메이션']],
+            [/sprite renderer/i, ['스프라이트렌더러', '스프라이트', '렌더러']],
+            [/ribbon renderer/i, ['리본렌더러', '리본', '트레일']],
+            [/mesh renderer/i, ['메시렌더러', '메쉬렌더러', '메시', '메쉬']],
+            [/light renderer/i, ['라이트렌더러', '라이트', '조명']],
+            [/time/i, ['타임', '시간']],
+            [/panner/i, ['패너', '패닝', '흐름', '스크롤']],
+            [/texture coordinate|texcoord/i, ['텍스코드', '텍스처좌표', 'uv', '유브이']],
+            [/componentmask/i, ['컴포넌트마스크', '채널', '마스크']],
+            [/linearinterpolate|lerp/i, ['러프', '럽', '보간', '섞기', 'lerp']],
+            [/depthfade/i, ['뎁스페이드', '뎁스 페이드', '소프트파티클']],
+            [/fresnel/i, ['프레넬', '림', '외곽선']],
+            [/sphere/i, ['스피어', '구', '원형']],
+            [/scalar parameter/i, ['스칼라', '파라미터', '값']],
+            [/vector parameter/i, ['벡터', '컬러', '색상']]
+        ];
+
+        this.terms.forEach(term => {
+            const aliases = new Set(term.aliases || []);
+            const haystack = `${term.term} ${term.def} ${term.why} ${term.formula}`;
+            aliasMap.forEach(([pattern, words]) => {
+                if (pattern.test(haystack)) words.forEach(word => aliases.add(word));
+            });
+            term.aliases = Array.from(aliases);
+        });
+    }
+
+    addRequestedNiagaraModuleCatalog() {
+        const niagaraDoc = 'https://dev.epicgames.com/documentation/unreal-engine/system-and-emitter-module-reference-for-niagara-effects-in-unreal-engine';
+        const addModule = (term, group, role, beginner, setup, aliases = []) => {
+            const exists = this.terms.some(t => this.normalizeSearchText(t.term) === this.normalizeSearchText(term));
+            if (exists) return;
+            this.terms.push({
+                term,
+                cat: 'niagara',
+                catName: group,
+                def: role,
+                why: beginner,
+                platform: 'PC, Console, Mobile - 실제 비용은 파티클 수, 실행 스택 위치, Renderer, Bounds, 플랫폼 기능 지원에 따라 검증 필요',
+                formula: setup,
+                epicLink: niagaraDoc,
+                aliases
+            });
+        };
+
+        [
+            ['Beam Width', 'Beam / Ribbon', 'Beam 또는 ribbon 계열 이펙트의 폭을 제어하는 모듈입니다.', '레이저, 전기 줄기, 궤적이 너무 얇거나 두꺼울 때 먼저 찾습니다.', 'Beam/Ribbon Renderer를 선택한 뒤 Width 값을 수명 커브와 연결해 시작과 끝을 얇게 만듭니다.', ['빔위드스', '빔 폭', '폭', 'width']],
+            ['Spawn Beam', 'Beam / Ribbon', '시작점과 끝점을 가진 beam 파티클을 생성하는 스폰 모듈입니다.', '총구에서 목표 지점까지 이어지는 번개, 레이저, 연결선을 만들 때 사용합니다.', 'Emitter Spawn 또는 Particle Spawn에서 beam point, target, tangents를 정하고 Renderer를 Beam/Ribbon 계열로 맞춥니다.', ['스폰빔', '빔스폰', '레이저', '번개줄기']],
+            ['Initialize Ribbon', 'Beam / Ribbon', 'Ribbon 파티클의 초기 ribbon id, 폭, 연결 기준을 설정합니다.', '검기나 트레일이 끊기거나 서로 잘못 이어질 때 확인합니다.', 'Particle Spawn에 배치하고 Ribbon Renderer의 ID binding과 일치시키세요.', ['이니셜라이즈리본', '리본초기화', '트레일초기화']],
+            ['Initialize Mesh Reproduction Sprite', 'Renderer / Sprite', 'Mesh Reproduction Sprite 계열에서 메시 표면 정보를 스프라이트로 재현하기 위한 초기화 모듈입니다.', '메시가 흩어지거나 표면이 입자로 복제되는 효과를 만들 때 사용합니다.', 'Static/Skeletal mesh sampling과 함께 쓰고 Renderer의 sprite material을 메시 재현용으로 맞춥니다.', ['메시리프로덕션', '메쉬복제', 'reproduction sprite']],
+            ['Maintain in Camera Particle Scale', 'Renderer / Camera', '카메라 거리 변화에도 파티클이 화면에서 일정한 크기로 보이도록 스케일을 보정합니다.', 'UI성 월드 이펙트, 먼 거리에서도 읽혀야 하는 포인트 표시, 렌즈 먼지에 사용합니다.', 'Particle Update에서 카메라 거리 기준 scale 보정을 적용하고 최대/최소 크기 제한을 둡니다.', ['카메라스케일유지', '화면크기유지', '사이즈유지']],
+            ['Camera Offset', 'Renderer / Camera', '카메라 방향으로 파티클 렌더 위치를 앞뒤로 이동해 깊이 충돌을 줄입니다.', '바닥에 붙은 링, 연기, 마법진이 지면과 깜빡일 때 사용합니다.', '작은 offset부터 테스트하고 Depth Fade와 Bounds를 함께 확인합니다.', ['카메라오프셋', '오프셋', 'z파이팅']],
+
+            ['Acceleration Force', 'Forces', '파티클에 일정한 가속도를 더하는 힘 모듈입니다.', '속도가 점점 빨라지는 불티, 위로 치솟는 에너지, 흡입/분출 보조에 씁니다.', 'Particle Update에 배치하고 Solve Forces and Velocity보다 앞에 둡니다.', ['가속도', '엑셀러레이션', '힘']],
+            ['Apply Initial Forces', 'Forces', '초기 힘 값을 적용해 파티클이 태어난 직후 특정 방향으로 움직이게 합니다.', '스폰 직후 한 번 튀는 파편이나 충격 반응을 만들 때 사용합니다.', 'Particle Spawn 또는 초기 Update 구간에서 velocity/force 초기값을 세팅합니다.', ['초기힘', '초기포스', 'initial force']],
+            ['Curl Noise Force', 'Forces', 'Curl noise 벡터장으로 유체 같은 소용돌이 움직임을 만듭니다.', '연기, 먼지, 불티가 직선으로 보이지 않게 자연스럽게 흐르게 할 때 사용합니다.', 'Noise Strength와 Frequency를 낮게 시작하고 Drag와 함께 튜닝합니다.', ['컬노이즈', '컬 노이즈', '소용돌이', '노이즈힘']],
+            ['Drag', 'Forces', '파티클 속도를 감쇠시켜 공기 저항처럼 느리게 만듭니다.', '파편이 너무 오래 날아가거나 연기가 너무 직선으로 뻗을 때 사용합니다.', 'Force 적용 뒤 Drag를 추가하고 Solve Forces and Velocity를 마지막에 둡니다.', ['드래그', '감속', '저항']],
+            ['Gravity Force', 'Forces', '중력 방향 힘을 적용해 파티클을 아래로 떨어뜨립니다.', '물방울, 파편, 재, 불티 낙하에 사용합니다.', 'Z 방향 음수 가속도를 설정하고 Drag/Collision과 함께 확인합니다.', ['그래비티', '중력', '낙하']],
+            ['Limit Force', 'Forces', '힘 또는 속도 크기를 제한해 과도한 움직임을 막습니다.', '노이즈나 흡입 힘 때문에 파티클이 튀는 경우 안정화용으로 사용합니다.', '강한 force 뒤에 배치하고 최대 force 또는 velocity 범위를 지정합니다.', ['리밋포스', '힘제한', '속도제한']],
+            ['Line Attraction Force', 'Forces', '파티클을 선분 또는 축 방향으로 끌어당깁니다.', '에너지가 한 줄로 모이거나 빔 축 주변으로 빨려드는 효과에 사용합니다.', 'Attraction line start/end를 정하고 strength falloff를 튜닝합니다.', ['라인어트랙션', '선끌림', '라인흡입']],
+            ['Linear Force', 'Forces', '고정 방향으로 일정한 힘을 더합니다.', '바람처럼 한쪽으로 흐르는 먼지, 위로 상승하는 연기 보조에 사용합니다.', 'Vector 방향과 세기를 지정하고 Wind Force와 구분해서 씁니다.', ['리니어포스', '직선힘', '방향힘']],
+            ['Mesh Rotation Force', 'Forces', 'Mesh particle의 회전 운동에 힘을 더합니다.', '돌조각, 얼음 파편, 금속 조각이 회전하며 날아가게 할 때 사용합니다.', 'Mesh Renderer와 함께 회전축/강도를 설정하고 inertia 모듈과 같이 씁니다.', ['메시회전힘', '메쉬회전', '회전포스']],
+            ['Point Attraction Force', 'Forces', '지정한 포인트로 파티클을 끌어당깁니다.', '블랙홀, 흡수 마법, 중심으로 모이는 에너지에 사용합니다.', 'Attractor 위치를 User Parameter로 받고 강도와 반경을 제한합니다.', ['포인트어트랙션', '점끌림', '흡입']],
+            ['Point Force', 'Forces', '지정한 점에서 밀어내거나 끌어당기는 방사형 힘을 만듭니다.', '폭발 중심에서 파편을 밀어내거나 중심 흡입을 만들 때 사용합니다.', 'Strength 양수/음수와 falloff 반경을 조절합니다.', ['포인트포스', '방사형힘', '폭발힘']],
+            ['Vector Noise Force', 'Forces', '벡터 노이즈 기반 힘으로 불규칙한 움직임을 만듭니다.', '게임용 저비용 난류나 작은 먼지 흔들림에 사용합니다.', 'Noise scale을 과하게 높이지 말고 Drag로 감쇠를 넣습니다.', ['벡터노이즈', '노이즈힘', '흔들림']],
+            ['Vortex Force', 'Forces', '축을 기준으로 회전하는 소용돌이 힘을 만듭니다.', '회오리, 마법진 주변 회전, 토네이도형 입자 움직임에 사용합니다.', 'Axis, origin, strength를 정하고 상승 Linear Force를 함께 섞습니다.', ['보텍스', '볼텍스', '회오리']],
+            ['Wind Force', 'Forces', '바람 방향과 강도로 파티클을 밀어줍니다.', '연기, 잎, 먼지, 눈이 바람을 타는 효과에 사용합니다.', '월드 방향 벡터를 정하고 Curl Noise와 낮은 Drag를 조합합니다.', ['윈드포스', '바람', '풍향']],
+            ['Apply Vector Field', 'Forces', 'Vector Field 데이터를 파티클 움직임에 적용합니다.', '미리 만든 복잡한 난류나 특정 흐름장을 재사용할 때 사용합니다.', 'Vector Field asset을 연결하고 intensity와 scale을 낮게 시작합니다.', ['벡터필드적용', 'vector field', '난류장']],
+            ['Sample Vector Field', 'Forces', 'Vector Field를 샘플링해 파티클 속도나 힘 데이터로 사용합니다.', '필드 값을 직접 가공하거나 커스텀 모듈에서 활용할 때 사용합니다.', '샘플 위치와 필드 좌표계를 맞춘 뒤 결과를 velocity/force에 연결합니다.', ['벡터필드샘플', '필드샘플']],
+
+            ['Generate Location Event', 'Events', '파티클 위치 정보를 이벤트로 내보냅니다.', '한 이미터 위치를 다른 이미터 스폰 지점으로 쓰고 싶을 때 사용합니다.', '이벤트를 생성한 뒤 Event Handler에서 Receive 계열로 받아 2차 파티클을 스폰합니다.', ['로케이션이벤트', '위치이벤트', '이벤트']],
+            ['Kill Particles', 'Lifecycle', '조건에 맞는 파티클을 제거합니다.', '거리 밖, 수명 조건, 충돌 후 파티클을 정리할 때 사용합니다.', '조건식을 먼저 작게 테스트하고 갑자기 전부 죽지 않는지 Preview에서 확인합니다.', ['킬파티클', '죽이기', '제거']],
+            ['Kill Particles in Volume', 'Lifecycle', '지정 볼륨 안 또는 밖의 파티클을 제거합니다.', '영역 제한, 보스 장판 범위 밖 제거, 카메라 밖 정리에 사용합니다.', 'Box/Sphere volume 기준을 정하고 inside/outside 조건을 확인합니다.', ['볼륨킬', '영역제거', '범위삭제']],
+            ['Do Once', 'Logic', '조건이 처음 참이 되는 순간 한 번만 실행되게 합니다.', '이벤트 중복 발생, 한 번만 터지는 2차 스폰을 제어할 때 사용합니다.', 'boolean 상태값을 저장하고 reset 조건을 명확히 둡니다.', ['두원스', '한번만', '1회실행']],
+            ['Increment Over Time', 'Logic', '시간에 따라 값을 누적 증가시킵니다.', 'radius, dissolve amount, frame index처럼 서서히 증가하는 값을 만들 때 사용합니다.', 'DeltaTime을 곱해 프레임 독립적으로 증가시키고 clamp를 둡니다.', ['시간누적', '증가', 'increment']],
+
+            ['Box Location', 'Location', '박스 영역 안에서 파티클 위치를 생성합니다.', '안개 볼륨, 사각 영역 먼지, 상자형 스폰에 사용합니다.', 'Box extents를 정하고 local/world space를 확인합니다.', ['박스로케이션', '박스위치', '상자스폰']],
+            ['Cone Location', 'Location', '원뿔 영역에서 파티클 위치를 생성합니다.', '분사구, 화염 방사, 원뿔형 폭발에 사용합니다.', 'Cone angle과 height를 이펙트 방향에 맞춥니다.', ['콘로케이션', '원뿔', '분사']],
+            ['Cylinder Location', 'Location', '원통 영역에서 파티클 위치를 생성합니다.', '기둥형 오라, 원형 장판, 수직 연기에 사용합니다.', 'Radius와 height를 설정하고 축 방향을 확인합니다.', ['실린더로케이션', '원통', '기둥']],
+            ['Grid Location', 'Location', '격자 형태로 파티클 위치를 생성합니다.', '정렬된 픽셀, 매트릭스, 샘플링 기반 분포에 사용합니다.', 'Grid count와 spacing을 낮게 시작해 성능을 확인합니다.', ['그리드로케이션', '격자', '배열']],
+            ['Jitter Position', 'Location', '파티클 위치에 랜덤 오프셋을 더합니다.', '번개, 먼지, 연기 외곽을 덜 규칙적으로 보이게 할 때 사용합니다.', 'Update에서 작은 값으로 시작하고 너무 튀면 Drag나 smoothing을 넣습니다.', ['지터포지션', '위치흔들림', '랜덤위치']],
+            ['Rotate Around Point', 'Location', '지정 포인트 주변으로 파티클을 회전시킵니다.', '마법진 주변 입자, 궤도 회전, 보호막 입자에 사용합니다.', 'Center, axis, angular speed를 정하고 radius를 별도 변수로 관리합니다.', ['포인트회전', '주변회전', '궤도']],
+            ['Skeletal Mesh Location', 'Location', 'Skeletal Mesh 표면이나 본 정보를 기준으로 위치를 생성합니다.', '캐릭터 몸에서 불꽃, 피격 파편, 소멸 먼지를 만들 때 사용합니다.', 'Skeletal Mesh Component를 User Parameter로 넘기고 sampling region을 제한합니다.', ['스켈레탈메시로케이션', '캐릭터표면', '본스폰']],
+            ['Sphere Location', 'Location', '구 또는 원형 영역에서 파티클 위치를 생성합니다.', '폭발, 오라, 방사형 스폰에 사용합니다.', 'Radius와 surface/volume 옵션을 확인합니다.', ['스피어로케이션', '구위치', '원형스폰']],
+            ['Static Mesh Location', 'Location', 'Static Mesh 표면을 샘플링해 파티클 위치를 만듭니다.', '오브젝트 표면 먼지, 파괴 파편, 균열 가장자리 입자에 사용합니다.', 'Mesh asset 또는 component binding을 설정하고 triangle sampling 비용을 확인합니다.', ['스태틱메시로케이션', '메시표면', '스태틱메쉬']],
+            ['System Location', 'Location', '시스템 기준 위치에서 파티클을 생성하거나 위치를 참조합니다.', 'Emitter가 System 위치를 기준으로 움직여야 할 때 사용합니다.', 'Local Space 여부와 Component transform을 함께 확인합니다.', ['시스템로케이션', '시스템위치', '월드위치']],
+            ['Torus Location', 'Location', '도넛 형태 영역에서 파티클 위치를 생성합니다.', '고리, 포탈, 충격파 링, 마법진 입자에 사용합니다.', 'Major/Minor radius를 조정하고 회전축을 맞춥니다.', ['토러스', '도넛', '고리']],
+
+            ['Calculate Mass and Rotational Inertia by Volume', 'Mass / Physics', '볼륨을 기준으로 질량과 회전 관성을 계산합니다.', '크기가 다른 mesh 파편이 물리적으로 다르게 회전해야 할 때 사용합니다.', 'Mesh size와 density를 설정한 뒤 Mesh Rotation Force와 함께 봅니다.', ['질량계산', '관성', '볼륨질량']],
+            ['Calculate Size and Rotational Inertia by Mass', 'Mass / Physics', '질량을 기준으로 크기와 회전 관성을 계산합니다.', '파편 무게감과 크기 반응을 맞추고 싶을 때 사용합니다.', 'Mass 값을 먼저 정하고 scale/inertia 결과를 renderer에 반영합니다.', ['크기관성', '질량기반크기', '회전관성']],
+            ['Find Kinetic and Potential Energy', 'Mass / Physics', '운동 에너지와 위치 에너지를 계산합니다.', '충돌 강도, 파편 반응, 에너지 기반 색상 변화에 사용합니다.', 'Mass, velocity, height 값을 기반으로 에너지 값을 계산해 color나 spawn에 연결합니다.', ['운동에너지', '위치에너지', '에너지']],
+
+            ['Dynamic Material Parameters', 'Material Binding', 'Niagara 값을 머터리얼 Dynamic Parameter 채널로 전달합니다.', '파티클마다 dissolve, glow, radius, distortion 값을 다르게 주고 싶을 때 사용합니다.', 'R/G/B/A 채널 의미를 정하고 Material의 Dynamic Parameter 노드와 맞춥니다.', ['다이나믹머티리얼파라미터', '다이나믹파라미터', '머터리얼연동']],
+            ['Cone Mask', 'Material / Utility', '원뿔 방향성 마스크를 계산합니다.', '전방 부채꼴 공격 범위, cone beam, 방향성 glow에 사용합니다.', 'Origin, direction, angle을 정하고 결과를 alpha 또는 spawn 조건으로 씁니다.', ['콘마스크', '원뿔마스크', '부채꼴']],
+            ['Lerp Particle Attributes', 'Material / Utility', '두 파티클 속성 값을 보간합니다.', '색상, 크기, 위치, 속도를 시간이나 조건에 따라 부드럽게 섞을 때 사용합니다.', 'Alpha 값을 0~1로 만들고 A/B attribute를 명확히 연결합니다.', ['속성보간', 'lerp', '보간']],
+            ['Recreate Camera Projection', 'Material / Utility', '카메라 투영 정보를 재구성해 화면 공간 계산에 사용합니다.', '화면 정렬, projection 기반 샘플링, 카메라 종속 효과에 사용합니다.', 'Camera parameter와 particle position을 함께 사용하고 aspect ratio를 확인합니다.', ['카메라프로젝션', '투영복원', '스크린공간']],
+            ['Temporal Lerp Float', 'Material / Utility', 'float 값을 시간에 따라 부드럽게 보간합니다.', '갑작스러운 값 변화가 튀지 않게 smoothing할 때 사용합니다.', 'Current, target, interpolation speed를 정하고 DeltaTime 기반으로 보간합니다.', ['템포럴러프플로트', '시간보간', 'float보간']],
+            ['Temporal Lerp Vector', 'Material / Utility', 'vector 값을 시간에 따라 부드럽게 보간합니다.', '색상, 위치, 방향 전환을 부드럽게 만들 때 사용합니다.', 'Vector target과 interpolation speed를 정해 프레임마다 갱신합니다.', ['템포럴러프벡터', '벡터보간', '시간벡터']],
+            ['Sample Pseudo Volume Texture', 'Material / Sampling', '2D 텍스처를 가짜 볼륨처럼 샘플링합니다.', '저비용 volume noise, smoke, cloud 패턴에 사용합니다.', 'slice 수와 UVW 좌표를 맞추고 Texture Sample 비용을 확인합니다.', ['슈도볼륨', '가짜볼륨', '볼륨텍스처']],
+            ['Sample Texture', 'Material / Sampling', '텍스처 데이터를 샘플링해 Niagara 값으로 사용합니다.', '이미지 기반 스폰, 컬러 추출, 마스크 기반 분포에 사용합니다.', 'UV를 0~1로 정리하고 RGBA 중 필요한 채널만 씁니다.', ['샘플텍스처', '텍스처샘플', '마스크샘플']],
+            ['Sub UV Texture Sample', 'Material / Sampling', 'SubUV flipbook 프레임을 샘플링합니다.', '폭발, 연기, 불 flipbook을 Niagara 프레임과 동기화할 때 사용합니다.', 'Sub image size와 frame index를 Sprite Renderer 설정과 맞춥니다.', ['서브유브이샘플', '플립북샘플', 'subuv']],
+            ['World Aligned Texture Sample', 'Material / Sampling', '월드 좌표 기준으로 텍스처를 샘플링합니다.', 'UV가 없는 표면, 월드 기준 노이즈, 지형과 이어지는 패턴에 사용합니다.', 'World position과 scale을 맞추고 움직이는 오브젝트에서는 좌표 고정 여부를 확인합니다.', ['월드얼라인드샘플', '월드텍스처', '월드uv']],
+
+            ['Update MS Vertex Animation Tools Morph Targets', 'VAT / Morph', 'MS Vertex Animation Tools의 morph target 정보를 업데이트합니다.', 'VAT 기반 메시 변형, 파괴, 흐르는 메시 애니메이션을 Niagara와 맞출 때 사용합니다.', 'VAT texture, frame, morph target index를 맞추고 renderer material binding을 확인합니다.', ['vat', '버텍스애니메이션', '모프타겟']],
+            ['Apply Chaos Data', 'Chaos / Destruction', 'Chaos 파괴 데이터나 물리 데이터를 Niagara에 적용합니다.', '파괴된 조각에서 먼지, 불꽃, 충격파를 자동 생성할 때 사용합니다.', 'Chaos event/data source를 연결하고 위치/속도/질량 데이터를 spawn 조건으로 씁니다.', ['카오스데이터', '파괴데이터', 'chaos']],
+            ['Spawn from Chaos', 'Chaos / Destruction', 'Chaos 이벤트를 기반으로 파티클을 스폰합니다.', '파괴 충돌 지점마다 먼지나 파편 보조 이펙트를 만들 때 사용합니다.', 'Chaos collision/break event를 받아 spawn count와 threshold를 제한합니다.', ['카오스스폰', '파괴스폰', 'chaos spawn']],
+
+            ['Add Rotational Velocity', 'Velocity', '파티클에 회전 속도를 추가합니다.', '돌조각, 잎, 불티가 회전하면서 날아가야 할 때 사용합니다.', '축별 rotational velocity를 설정하고 mesh/sprite rotation binding을 확인합니다.', ['회전속도추가', '로테이션속도', '스핀']],
+            ['Add Velocity', 'Velocity', '파티클에 초기 또는 추가 속도를 부여합니다.', '스폰 직후 튀어나가는 방향성을 만들 때 가장 기본입니다.', 'Particle Spawn에서 방향과 크기를 정하고 Drag/Gravity로 후속 움직임을 잡습니다.', ['애드벨로시티', '속도추가', '벨로시티']],
+            ['Add Velocity from Point', 'Velocity', '지정 포인트 기준으로 바깥 또는 안쪽 방향 속도를 부여합니다.', '폭발 중심에서 밀려나거나 중심으로 빨려드는 시작 속도에 사용합니다.', 'Point 위치와 strength를 User Parameter로 넘기면 다양한 위치에서 재사용됩니다.', ['포인트속도', '중심속도', '방사형속도']],
+            ['Add Velocity in Cone', 'Velocity', '원뿔 범위 안에서 무작위 방향 속도를 부여합니다.', '불꽃, 물보라, 산탄형 파편, 분사 이펙트에 사용합니다.', 'Cone angle, axis, speed range를 정하고 spawn count를 낮게 시작합니다.', ['콘속도', '원뿔속도', '분사속도']],
+            ['Inherit Velocity', 'Velocity', '부모 액터나 소스 파티클의 속도를 상속합니다.', '움직이는 캐릭터, 발사체, 차량에서 자연스럽게 뒤따르는 이펙트에 사용합니다.', 'Source velocity scale을 0.2~1.0 사이로 조정해 과도한 끌림을 막습니다.', ['속도상속', '인헤릿벨로시티', '부모속도']],
+            ['Scale Velocity', 'Velocity', '기존 velocity를 배율로 키우거나 줄입니다.', '전체 움직임 속도를 한 번에 튜닝하거나 수명에 따라 감속할 때 사용합니다.', 'Velocity * Curve 구조로 만들고 Drag와 중복 감쇠되지 않는지 봅니다.', ['속도스케일', '벨로시티스케일', '스케일속도']]
+        ].forEach(args => addModule(...args));
+    }
+
+    normalizeSearchText(value) {
+        return String(value || '').toLowerCase().replace(/[\s_\-/>]+/g, '');
     }
 }
