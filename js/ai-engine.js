@@ -1429,14 +1429,14 @@ ${likelyMenu}`;
 
             let features_str = "";
             customFeatures.forEach((f, i) => {
-                features_str += `\\n\${i+2}. **\${f}**: 셰이더 내에서 패너 및 LERP 노드를 활용해 이펙트의 동적 움직임을 제어합니다.`;
+                features_str += `\n${i + 2}. **${f}**: 셰이더 내에서 패너 및 LERP 노드를 활용해 이펙트의 동적 움직임을 제어합니다.`;
             });
 
             animationExplanation = `
 #### 🎭 맞춤형 애니메이션 및 마스크 구성
 1. **나이아가라 동기화 회로**:
    - 나이아가라 이미터에서 파티클의 나이(Age)와 수명(Lifetime)에 따라 변형을 주기 위해 **Particle Color** 노드를 배치합니다.
-   - 파티클 수명이 끝날 때 뚝 끊기며 사라지는 불량을 해결하기 위해 Alpha 채널을 Opacity 핀에 직결하고 끝단에 **Depth Fade**를 곱하여 지형지물 충돌면을 부드러운 먼지처럼 감쇄 처리합니다.\${features_str}`;
+   - 파티클 수명이 끝날 때 뚝 끊기며 사라지는 불량을 해결하기 위해 Alpha 채널을 Opacity 핀에 직결하고 끝단에 **Depth Fade**를 곱하여 지형지물 충돌면을 부드러운 먼지처럼 감쇄 처리합니다.${features_str}`;
 
             emissiveExplanation = "이펙트가 화면에서 화려하게 네온 빛을 발산하도록 **Particle Color (RGB)**에 **Scalar Parameter ('VFX_Emissive_Boost': 추천값 30.0)**를 곱하여 Emissive Color 핀에 직결함으로써 완성도 높은 네온 글로우를 확보합니다.";
         }
@@ -1461,26 +1461,26 @@ ${likelyMenu}`;
         }
 
         // Build final ChatGPT structured report
-        let contentMarkdown = `### 📖 맞춤형 AI 설계: \${matchedConcept} 이펙트 블루프린트
+        let contentMarkdown = `### 📖 맞춤형 AI 설계: ${matchedConcept} 이펙트 블루프린트
 *사용자가 입력하신 이펙트 세부 요건을 실시간 분석하여 완벽 조립된 **언리얼 엔진 5.4+ 테크니컬 아티스트(TA) 마스터 설계 도면**입니다.*
 
 ---
 
 ### 1. 🧊 1단계: 마스터 머터리얼 노드 아키텍처 (Material Graph)
 
-이펙트의 비주얼 컨셉 **[\${visualKeywords.join(', ')}]**을 오버드로 렉 없이 최상급 AAA 비주얼로 구현하기 위한 셰이더 설정 및 핵심 노드 설계도입니다.
-\${decalSettings}
+이펙트의 비주얼 컨셉 **[${visualKeywords.join(', ')}]**을 오버드로 렉 없이 최상급 AAA 비주얼로 구현하기 위한 셰이더 설정 및 핵심 노드 설계도입니다.
+${decalSettings}
 
 #### A. 머터리얼 기본 프로필 세팅
-- **Material Domain**: \${materialDomain}
-- **Blend Mode**: \${blendMode}
-- **Shading Model**: \${shadingModel}
-- **Two Sided (양면 렌더링)**: \${materialDomain === "Surface" ? "True (체크 필수 - 펄럭이거나 휘어질 때 뒷면 뚫림 방지)" : "N/A (데칼의 경우 해당 무)"}
-\${virtualDepthExplanation}
-\${animationExplanation}
+- **Material Domain**: ${materialDomain}
+- **Blend Mode**: ${blendMode}
+- **Shading Model**: ${shadingModel}
+- **Two Sided (양면 렌더링)**: ${materialDomain === "Surface" ? "True (체크 필수 - 펄럭이거나 휘어질 때 뒷면 뚫림 방지)" : "N/A (데칼의 경우 해당 무)"}
+${virtualDepthExplanation}
+${animationExplanation}
 
 #### B. 이미시브 및 글로우 제어 회로 (Emissive Formula)
-\${emissiveExplanation}
+${emissiveExplanation}
 1. **최종 Emissive 핀 주입 공식**:
    - '[최종 이펙트 마스크 (UV 스크롤 & 애니메이션 팽창)] * Particle Color (RGB) * Emissive Power'
    - 이미시브 세기가 강렬해질 때 생기는 네온 글로우는 레벨 내 포스트 프로세스 볼륨의 **Bloom** 세팅값과 실시간 상호작용하여 화면 가득 화려하게 퍼져나갑니다.
@@ -1493,9 +1493,9 @@ ${likelyMenu}`;
 
 | 나이아가라 이미터 항목 | 추천 세팅값 및 파라미터 제어 공식 | 실무 꿀팁 및 가속 효과 |
 | :--- | :--- | :--- |
-| **Sim Target (연산 타깃)** | **\${niagaraEmitterType}** | 대량 스폰 시에도 프레임 드랍(Spike)을 미연에 방지 |
-| **Spawn 모듈** | **\${niagaraSpawnType}** | 컨셉에 최적화된 프레임 단위 파티클 스폰 흐름 |
-\${niagaraParamsTable.map(row => '| **\${row.name}** | \${row.val} | 머터리얼 변형 제어에 기여 |').join('\n')}
+| **Sim Target (연산 타깃)** | **${niagaraEmitterType}** | 대량 스폰 시에도 프레임 드랍(Spike)을 미연에 방지 |
+| **Spawn 모듈** | **${niagaraSpawnType}** | 컨셉에 최적화된 프레임 단위 파티클 스폰 흐름 |
+${niagaraParamsTable.map(row => `| **${row.name}** | ${row.val} | 머터리얼 변형 제어에 기여 |`).join('\n')}
 
 ---
 
@@ -1510,8 +1510,8 @@ ${likelyMenu}`;
 
         return {
             num: "CUSTOM",
-            title: `맞춤 AI 설계: \${promptText.substring(0, 24).replace(/\n/g, ' ')}\${promptText.length > 24 ? '...' : ''}`,
-            subtitle: '\${styleText} / \${tierText} 환경을 위한 맞춤형 VFX 테크니컬 마스터 리포트',
+            title: `맞춤 AI 설계: ${promptText.substring(0, 24).replace(/\n/g, ' ')}${promptText.length > 24 ? '...' : ''}`,
+            subtitle: `${styleText} / ${tierText} 환경을 위한 맞춤형 VFX 테크니컬 마스터 리포트`,
             content: contentMarkdown
         };
     }
