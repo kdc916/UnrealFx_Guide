@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UnrealFX AI | Unreal VFX Production Reference</title>
+    <meta name="description" content="언리얼 엔진 5 Niagara, Material, VFX 최적화, Unity 마이그레이션을 위한 실무형 프로덕션 레퍼런스입니다.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css?v=1.0.1">
+
+    <!-- Foolproof JS Error Visual Debugger -->
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            var div = document.createElement('div');
+            div.style.position = 'fixed';
+            div.style.top = '0';
+            div.style.left = '0';
+            div.style.width = '100%';
+            div.style.background = '#ff0033';
+            div.style.color = '#fff';
+            div.style.padding = '15px';
+            div.style.zIndex = '999999';
+            div.style.fontFamily = 'monospace';
+            div.style.fontSize = '14px';
+            div.style.wordBreak = 'break-all';
+            div.style.boxShadow = '0 8px 24px rgba(255,0,0,0.5)';
+            div.innerHTML = '<strong>[UnrealFX JS Error Debugger]</strong> ' + message + ' <br>Source: ' + source + ' <br>Line: ' + lineno + ':' + colno + (error ? ' <br>Stack: ' + error.stack : '');
+            document.body.appendChild(div);
+            return false;
+        };
+    </script>
+</head>
+<body>
+    <!-- Unreal Editor Grid Background -->
+    <div class="editor-grid-bg"></div>
+    <div class="radial-glow"></div>
+
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="logo-area">
+                <div class="glow-orb orange animate-pulse"></div>
+                <div class="logo-title">
+                    <h1>UnrealFX <span>AI</span></h1>
+                    <div class="tagline">VFX Niagara & Shading Master Encyclopedia</div>
+                </div>
+            </div>
+            
+            <div class="status-panel">
+                <div class="status-item">
+                    <span class="status-dot green animate-pulse"></span>
+                    <span>ENGINE VERSION: <strong>UE 5.0 ~ 5.4+</strong></span>
+                </div>
+                <div class="status-divider"></div>
+                <div class="status-item">
+                    <span>MODE: </span>
+                    <div class="mode-capsule" id="current-tier-badge">AAA CONSOLE</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN LAYOUT -->
+        <main class="app-main">
+            <!-- LEFT COLUMN: SIDEBAR TABLE OF CONTENTS & QUICK SEARCH -->
+            <aside class="sidebar-section card">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5v-15z"/></svg>
+                        <h2>Unreal VFX Production Index</h2>
+                    </div>
+                </div>
+
+                <!-- Global Search Bar -->
+                <div class="sidebar-search">
+                    <div class="search-bar-wrapper">
+                        <input type="text" id="globalSearch" placeholder="이펙트, 노드, 최적화 키워드 검색... (예: 데칼, 디졸브, 오버드로, 프레넬)">
+                        <span class="search-icon">🔍</span>
+                    </div>
+                    <div class="beginner-search-hints" aria-label="초보자 빠른 이동">
+                        <button class="shortcut-chip active" data-open-chapter="0">처음 시작</button>
+                        <button class="shortcut-chip" data-open-chapter="7">Unity 번역표</button>
+                        <button class="shortcut-chip" data-search-query="안 보임">안 보일 때</button>
+                    </div>
+                </div>
+
+                <!-- Adaptive Toggles -->
+                <div class="sidebar-filters">
+                    <div class="filter-group-vertical">
+                        <label>VFX 스타일 매칭</label>
+                        <div class="filter-options-grid" id="sidebar-filter-style">
+                            <button class="filter-btn active" data-style="stylized">스타일라이즈드 (만화)</button>
+                            <button class="filter-btn" data-style="realistic">리얼리스틱 (실사)</button>
+                        </div>
+                    </div>
+                    <div class="filter-group-vertical">
+                        <label>게임 그래픽 사양 등급</label>
+                        <div class="filter-options-grid" id="sidebar-filter-tier">
+                            <button class="filter-btn" data-tier="casual">Casual (모바일/인디)</button>
+                            <button class="filter-btn active" data-tier="aaa">AAA Console (콘솔/PC)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chapters List (Table of Contents) -->
+                <div class="toc-list-wrapper">
+                    <h3>Production Guide</h3>
+                    <ul class="toc-list" id="tocChaptersList">
+                        <li class="toc-item beginner active" data-chapter="0">
+                            <span class="toc-num">00</span>
+                            <div class="toc-info">
+                                <span class="toc-title">입문 로드맵 & 첫 이펙트</span>
+                                <span class="toc-subtitle">Unity/UE Beginner Orientation</span>
+                            </div>
+                        </li>
+                        <li class="toc-item" data-chapter="4">
+                            <span class="toc-num">01</span>
+                            <div class="toc-info">
+                                <span class="toc-title">Niagara 모듈 레퍼런스</span>
+                                <span class="toc-subtitle">Emitter Stack & Module Index</span>
+                            </div>
+                        </li>
+                        <li class="toc-item" data-chapter="5">
+                            <span class="toc-num">02</span>
+                            <div class="toc-info">
+                                <span class="toc-title">Material 노드 레퍼런스</span>
+                                <span class="toc-subtitle">Shader Nodes & VFX Usage</span>
+                            </div>
+                        </li>
+                        <li class="toc-item" data-chapter="6">
+                            <span class="toc-num">03</span>
+                            <div class="toc-info">
+                                <span class="toc-title">성능 최적화 & 프로파일링</span>
+                                <span class="toc-subtitle">Overdraw, LOD, DrawCall Bottlenecks</span>
+                            </div>
+                        </li>
+                        <li class="toc-item" data-chapter="7">
+                            <span class="toc-num">04</span>
+                            <div class="toc-info">
+                                <span class="toc-title">Unity → Unreal 마이그레이션</span>
+                                <span class="toc-subtitle">Unity Shuriken to Niagara Mapping</span>
+                            </div>
+                        </li>
+                        <li class="toc-item" data-chapter="8">
+                            <span class="toc-num">05</span>
+                            <div class="toc-info">
+                                <span class="toc-title">UE 5.7 공식 문서 심화</span>
+                                <span class="toc-subtitle">Niagara, Material Editor, Content, Post Process</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- [NEW] VFX Custom AI Creator Panel -->
+                <div class="sidebar-custom-planner-panel">
+                    <div class="planner-header">
+                        <h3>🧬 Custom VFX Technical Brief</h3>
+                        <span class="planner-badge">TECH ART DRAFT</span>
+                    </div>
+                    <p class="planner-desc">원하는 VFX 컨셉(용암 균열 데칼, 검기 슬래시, 공기 굴절 등)을 한국어로 자유롭게 서술하세요. Material Graph, Niagara 구성, 플랫폼별 성능 기준을 기술 브리프로 정리합니다.</p>
+                    <div class="planner-textarea-wrapper">
+                        <textarea id="sidebarCustomPrompt" placeholder="구현하고 싶은 VFX 비주얼 컨셉이나 세부 기능 요구사항을 자유롭게 입력해 주세요... (예: 폭파, 쇼크웨이브, 파도, 피, 흡혈 이펙트 등)" rows="4"></textarea>
+                    </div>
+                    <button class="btn-generate-custom-recipe" id="btnGenerateCustomRecipe">
+                        <span class="copy-glow"></span>
+                        ⚡ Technical Breakdown 생성
+                    </button>
+                </div>
+            </aside>
+
+            <!-- RIGHT COLUMN: INTERACTIVE WORKSPACE & READING PANEL -->
+            <section class="workspace-section card">
+                <!-- Workspace Tab Switcher -->
+                <nav class="workspace-tabs">
+                    <button class="tab-btn active" data-tab="guide">
+                        <svg class="tab-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5v-15z"/></svg>
+                        <span>📖 Production Guide</span>
+                    </button>
+                    <button class="tab-btn" data-tab="recipes">
+                        <svg class="tab-icon" viewBox="0 0 24 24"><path d="M4 4h16v16H4zM8 8h8M8 12h8M8 16h5"/></svg>
+                        <span>🧩 Effect Technique Reference</span>
+                    </button>
+                    <button class="tab-btn" data-tab="chat">
+                        <svg class="tab-icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                        <span>💬 Technical Q&A</span>
+                    </button>
+                    <button class="tab-btn" data-tab="materials">
+                        <svg class="tab-icon" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                        <span>📋 Material Technique Library</span>
+                    </button>
+                    <button class="tab-btn" data-tab="niagara">
+                        <svg class="tab-icon" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10zM12 6v12M6 12h12"/></svg>
+                        <span>🌀 Niagara System Planner</span>
+                    </button>
+                </nav>
+
+                <!-- TAB CONTENTS -->
+                <div class="tab-contents-container">
+                    
+                    <!-- TAB 1: MASTER GUIDEBOOK (CHAPTER READER) -->
+                    <div class="tab-content active" id="tab-guide">
+                        <!-- Chapter Header Area -->
+                        <div class="guide-header-area">
+                            <span class="guide-chapter-badge" id="guideChapterBadge">CHAPTER 00</span>
+                            <h2 class="guide-chapter-title" id="guideChapterTitle">입문 로드맵 & 첫 이펙트 (Beginner Onboarding)</h2>
+                            <p class="guide-chapter-subtitle" id="guideChapterSubtitle">유니티에서 넘어온 사용자와 언리얼 첫 사용자를 위한 작업 화면, 용어 번역, 첫 Niagara 실습 가이드</p>
+                        </div>
+                        
+                        <!-- Rich Editorial Content Body -->
+                        <div class="guide-editorial-body" id="guideEditorialBody">
+                            <!-- Rendered dynamically by js/ai-engine.js -->
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: EFFECT TECHNIQUE REFERENCE -->
+                    <div class="tab-content" id="tab-recipes">
+                        <div class="section-desc">
+                            <h3>🧩 Effect Technique Reference</h3>
+                            <p>데칼, 디졸브, 원소별 이펙트처럼 제작 레시피 성격이 강한 문서는 메인 가이드와 분리했습니다. 실무 제작 중 필요한 기법만 빠르게 열람하세요.</p>
+                        </div>
+                        <div class="recipe-topic-bar">
+                            <button class="recipe-topic-btn active" data-recipe-chapter="1">Decal Projection</button>
+                            <button class="recipe-topic-btn" data-recipe-chapter="2">Dissolve & Fade</button>
+                            <button class="recipe-topic-btn" data-recipe-chapter="3">Elemental VFX</button>
+                        </div>
+                        <div class="guide-header-area compact">
+                            <span class="guide-chapter-badge" id="recipeChapterBadge">TECH 01</span>
+                            <h2 class="guide-chapter-title" id="recipeChapterTitle">데칼 시스템 완전정복 (Decal Systems)</h2>
+                            <p class="guide-chapter-subtitle" id="recipeChapterSubtitle">지면 마법진, 탄흔, 파편 그을음 Shading 및 Niagara 스폰 설계 가이드</p>
+                        </div>
+                        <div class="guide-editorial-body" id="recipeEditorialBody"></div>
+                    </div>
+
+                    <!-- TAB 3: TECHNICAL Q&A -->
+                    <div class="tab-content" id="tab-chat">
+                        <div class="chat-intro-banner">
+                            <span class="banner-badge">TECHNICAL ASSISTANT</span>
+                            <h3>🎓 Unreal VFX Technical Q&A</h3>
+                            <p>가이드나 레퍼런스를 보다가 막히는 부분이 있으면 질문하세요. 현재는 로컬 지식 엔진으로 답변하고, 정확도 보강을 위해 관련 Epic 공식 매뉴얼 링크를 함께 안내합니다.</p>
+                        </div>
+
+                        <!-- Chat Messages Window -->
+                        <div class="chat-messages-window" id="chatWindow">
+                            <div class="chat-message system">
+                                <div class="message-avatar">🎓</div>
+                                <div class="message-body">
+                                    <div class="sender-name">Unreal VFX Technical Assistant</div>
+                                    <div class="message-text">
+                                        안녕하세요. Unreal VFX Technical Assistant입니다. 데칼, 디졸브, 이펙트 물리 충돌 연산, GPU 파티클 최적화 등 무엇이든 물어보세요. <br>
+                                        현재 선택하신 <strong>[스타일라이즈드 / AAA 콘솔]</strong> 타깃 플랫폼 세팅에 입각하여 최고 깊이의 전문 답변을 제공합니다.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Templates -->
+                        <div class="quick-prompts-container">
+                            <span class="quick-label">⚡ Technical question presets by workflow:</span>
+                            <div class="quick-prompts">
+                                <div class="quick-prompt-group">
+                                    <span class="quick-prompt-category">Actor / Blueprint</span>
+                                    <button class="quick-prompt-btn" data-prompt="Actor에 Niagara Component를 붙이고 Activate로 재사용하는 실무 구조를 알려줘">Actor Component 재사용</button>
+                                    <button class="quick-prompt-btn" data-prompt="Spawn System Attached와 Spawn System at Location은 언제 구분해서 써야 해?">Attached vs Location</button>
+                                    <button class="quick-prompt-btn" data-prompt="캐릭터 소켓에 버프 오라나 검기 이펙트를 안정적으로 붙이는 방법은?">Socket Attach</button>
+                                    <button class="quick-prompt-btn" data-prompt="Blueprint Actor 변수 값을 Niagara User Parameter로 넘기는 흐름을 알려줘">User Parameter</button>
+                                    <button class="quick-prompt-btn" data-prompt="반복 스폰되는 피격 이펙트는 Actor Pooling과 Niagara Pooling 중 뭘 봐야 해?">Pooling 설계</button>
+                                </div>
+                                <div class="quick-prompt-group">
+                                    <span class="quick-prompt-category">Niagara / Emitter</span>
+                                    <button class="quick-prompt-btn" data-prompt="Niagara System, Emitter, Particle Spawn, Particle Update, Renderer 차이를 실무 기준으로 설명해줘">Stack 구조</button>
+                                    <button class="quick-prompt-btn" data-prompt="GPU Compute Sim과 CPU Sim은 어떤 기준으로 선택해야 해?">CPU vs GPU Sim</button>
+                                    <button class="quick-prompt-btn" data-prompt="Fixed Bounds가 왜 필요하고 어느 정도로 잡아야 해?">Fixed Bounds</button>
+                                    <button class="quick-prompt-btn" data-prompt="Collision Event와 Event Handler를 쓰면 어떤 비용과 제약이 있어?">Collision Event</button>
+                                    <button class="quick-prompt-btn" data-prompt="Ribbon Renderer로 검기 궤적을 만들 때 자주 깨지는 부분을 알려줘">Ribbon Trail</button>
+                                    <button class="quick-prompt-btn" data-prompt="Mesh Renderer 파티클은 언제 쓰고 언제 피해야 해?">Mesh Renderer</button>
+                                </div>
+                                <div class="quick-prompt-group">
+                                    <span class="quick-prompt-category">Material / Shader</span>
+                                    <button class="quick-prompt-btn" data-prompt="Particle Color Bind는 Niagara와 Material 사이에서 어떤 역할을 해?">Particle Color</button>
+                                    <button class="quick-prompt-btn" data-prompt="Depth Fade와 Soft Particle Blend는 어떤 차이가 있어?">Depth Fade</button>
+                                    <button class="quick-prompt-btn" data-prompt="Fresnel Rim Light는 쉴드와 홀로그램에서 어떻게 써?">Fresnel Rim</button>
+                                    <button class="quick-prompt-btn" data-prompt="SubUV Flipbook은 실시간 시뮬레이션보다 언제 유리해?">SubUV Flipbook</button>
+                                    <button class="quick-prompt-btn" data-prompt="Channel Packed Masks로 모바일 VFX 텍스처 샘플 비용을 줄이는 방법은?">Packed Masks</button>
+                                    <button class="quick-prompt-btn" data-prompt="Alpha Erosion과 Dissolve를 Material에서 구성하는 핵심 노드는?">Alpha Erosion</button>
+                                </div>
+                                <div class="quick-prompt-group">
+                                    <span class="quick-prompt-category">Mobile / Optimization</span>
+                                    <button class="quick-prompt-btn" data-prompt="나이아가라 모바일 사양에서 안전한 Spawn Count와 Renderer 기준을 알려줘">Mobile Niagara</button>
+                                    <button class="quick-prompt-btn" data-prompt="모바일 VFX에서 Translucent Overdraw를 줄이는 체크리스트를 알려줘">Overdraw</button>
+                                    <button class="quick-prompt-btn" data-prompt="캐주얼 모바일용 Material Technique Library에서 우선 볼 항목은 뭐야?">Mobile Material</button>
+                                    <button class="quick-prompt-btn" data-prompt="Light Renderer와 Refraction은 모바일에서 왜 위험해?">고비용 기능</button>
+                                    <button class="quick-prompt-btn" data-prompt="Niagara LOD와 Scalability를 실무에서 어떻게 잡아야 해?">LOD / Scalability</button>
+                                </div>
+                                <div class="quick-prompt-group">
+                                    <span class="quick-prompt-category">Troubleshooting</span>
+                                    <button class="quick-prompt-btn" data-prompt="Niagara가 에디터에서는 보이는데 레벨에서 사라지는 원인을 순서대로 알려줘">레벨에서 사라짐</button>
+                                    <button class="quick-prompt-btn" data-prompt="파티클이 검게 보일 때 Material과 Renderer에서 어디를 확인해야 해?">검게 보임</button>
+                                    <button class="quick-prompt-btn" data-prompt="데칼이 바닥에 안 붙고 떠 보이거나 흐릿할 때 확인할 항목은?">Decal 문제</button>
+                                    <button class="quick-prompt-btn" data-prompt="이펙트가 너무 커지거나 작아질 때 언리얼 단위와 Sprite Size를 어떻게 봐야 해?">스케일 문제</button>
+                                    <button class="quick-prompt-btn" data-prompt="Particle Color Alpha가 죽어서 안 보이는 문제를 어떻게 확인해?">Alpha 문제</button>
+                                </div>
+                                <div class="quick-prompt-group">
+                                    <span class="quick-prompt-category">Unity Migration / Manual</span>
+                                    <button class="quick-prompt-btn" data-prompt="Unity Shuriken의 Start Lifetime, Start Size, Color over Lifetime은 Niagara에서 어디야?">Shuriken 매핑</button>
+                                    <button class="quick-prompt-btn" data-prompt="Unity Prefab에 Particle System 붙이던 방식을 Unreal Blueprint Actor로 바꾸는 방법은?">Prefab 전환</button>
+                                    <button class="quick-prompt-btn" data-prompt="언리얼 공식 매뉴얼에서 Niagara 모듈 레퍼런스는 어디를 봐야 해?">Niagara 매뉴얼</button>
+                                    <button class="quick-prompt-btn" data-prompt="언리얼 공식 매뉴얼에서 Material Expression과 Parameter 문서는 어디를 봐야 해?">Material 매뉴얼</button>
+                                    <button class="quick-prompt-btn" data-prompt="Actor와 Component 공식 매뉴얼 위치를 안내해줘">Actor 매뉴얼</button>
+                                    <button class="quick-prompt-btn" data-prompt="Content Browser에서 VFX 에셋 폴더와 마이그레이션을 어떻게 관리해야 해?">Content Browser</button>
+                                    <button class="quick-prompt-btn" data-prompt="Post Process Volume과 Bloom, Exposure는 VFX에서 언제 봐야 해?">Post Process</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chat Input Box -->
+                        <div class="chat-input-area">
+                            <textarea id="chatInput" placeholder="만들고 싶은 이펙트 아이디어나 언리얼 셰이더 질문을 입력하세요... (엔터 또는 전송 버튼)" rows="1"></textarea>
+                            <button id="btnSendChat">
+                                <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- TAB 4: MATERIAL TECHNIQUE LIBRARY -->
+                    <div class="tab-content" id="tab-materials">
+                        <div class="section-desc">
+                            <h3>📋 Material Technique Library</h3>
+                            <p>콘솔/PC/캐주얼 프로젝트에서 반복적으로 쓰이는 VFX 셰이더 노드 패턴을 검색하고 비교하는 실무 레퍼런스입니다. 선택한 기술은 그래프 구조, 노드 역할, 복사용 Unreal 노드 블록으로 확인할 수 있습니다.</p>
+                        </div>
+                        <div class="material-library-search">
+                            <input type="text" id="materialPresetSearch" placeholder="기술명, 플랫폼, 용도 검색... (예: mobile, overdraw, fresnel, decal, flipbook, dissolve)">
+                        </div>
+
+                        <div class="materials-category-title">Core VFX Shading</div>
+                        <div class="materials-preset-bar">
+                            <button class="node-preset-btn active" data-node="glow">Glowing Panner</button>
+                            <button class="node-preset-btn" data-node="emissive">Emissive Boost</button>
+                            <button class="node-preset-btn" data-node="slashribbon">Ribbon Trail Mask</button>
+                            <button class="node-preset-btn" data-node="particlecolor">Particle Color Bind</button>
+                            <button class="node-preset-btn" data-node="flipbook">SubUV Flipbook</button>
+                            <button class="node-preset-btn" data-node="alphaerosion">Alpha Erosion</button>
+                        </div>
+
+                        <div class="materials-category-title">Advanced Surface & Screen</div>
+                        <div class="materials-preset-bar">
+                            <button class="node-preset-btn" data-node="decal">DBuffer Decal</button>
+                            <button class="node-preset-btn" data-node="parallax">Parallax / BumpOffset</button>
+                            <button class="node-preset-btn" data-node="distortion">Screen Distortion</button>
+                            <button class="node-preset-btn" data-node="shockwave">Radial Shockwave</button>
+                            <button class="node-preset-btn" data-node="fresnelrim">Fresnel Rim Light</button>
+                            <button class="node-preset-btn" data-node="depthfade">Depth Fade Soft Edge</button>
+                            <button class="node-preset-btn" data-node="worldaligned">World Aligned UV</button>
+                            <button class="node-preset-btn" data-node="vertexoffset">Vertex Offset Motion</button>
+                        </div>
+
+                        <div class="materials-category-title">Elemental, Atmospheric & Platform</div>
+                        <div class="materials-preset-bar">
+                            <button class="node-preset-btn" data-node="smoke6way">6-Way Lit Smoke</button>
+                            <button class="node-preset-btn" data-node="firecel">Cel Fire</button>
+                            <button class="node-preset-btn" data-node="liquidblood">Fluid Liquid</button>
+                            <button class="node-preset-btn" data-node="gasfog">Soft Gas Fog</button>
+                            <button class="node-preset-btn" data-node="glitch">Cyber Glitch</button>
+                            <button class="node-preset-btn" data-node="mobileadditive">Mobile Additive Sprite</button>
+                            <button class="node-preset-btn" data-node="softparticle">Soft Particle Blend</button>
+                            <button class="node-preset-btn" data-node="channelpacked">Channel Packed Masks</button>
+                            <button class="node-preset-btn" data-node="hueramp">Hue Ramp / Gradient</button>
+                            <button class="node-preset-btn" data-node="cheapnoise">Cheap Procedural Noise</button>
+                        </div>
+
+                        <div class="materials-category-title">Masks, UV, Utility & Production</div>
+                        <div class="materials-preset-bar">
+                            <button class="node-preset-btn" data-node="spheremask">Sphere Mask Reveal</button>
+                            <button class="node-preset-btn" data-node="radialgradient">Radial Gradient Mask</button>
+                            <button class="node-preset-btn" data-node="dithertaa">Dither Temporal AA Fade</button>
+                            <button class="node-preset-btn" data-node="distancemask">Distance Cull Fade</button>
+                            <button class="node-preset-btn" data-node="cameradepth">Camera Depth Fade</button>
+                            <button class="node-preset-btn" data-node="flowmap">Flow Map Distortion</button>
+                            <button class="node-preset-btn" data-node="normalblend">Normal Map Blend</button>
+                            <button class="node-preset-btn" data-node="twopanner">Two Panner Noise</button>
+                            <button class="node-preset-btn" data-node="uvrotate">Rotator UV Motion</button>
+                            <button class="node-preset-btn" data-node="objectmask">Object Position Mask</button>
+                            <button class="node-preset-btn" data-node="distancefield">Distance Field Fade</button>
+                            <button class="node-preset-btn" data-node="runtimeparam">Runtime Scalar Parameter</button>
+                            <button class="node-preset-btn" data-node="materialfunction">Material Function Wrapper</button>
+                            <button class="node-preset-btn" data-node="flipbookblend">Flipbook Frame Blend</button>
+                            <button class="node-preset-btn" data-node="vertexcolor">Vertex Color Mask</button>
+                            <button class="node-preset-btn" data-node="desaturation">Desaturation Hit Flash</button>
+                        </div>
+
+                        <!-- Interactive Node Visual Workspace in Split Columns -->
+                        <div class="materials-workspace-split">
+                            <!-- Left: Interactive Graph & Console -->
+                            <div class="materials-main-column">
+                                <div class="node-graph-viewport">
+                                    <div class="node-graph-inner" id="nodeGraphContainer">
+                                        <!-- Rendered dynamically by js/material-lab.js -->
+                                    </div>
+                                </div>
+
+                                <!-- [NEW] AI Node Prompt Console -->
+                                <div class="node-prompt-console">
+                                    <div class="console-header">
+                                        <span class="console-badge">SHADER PARAMETER ASSIST</span>
+                                        <h4>🧬 Material Graph Adjustment Console</h4>
+                                    </div>
+                                    <div class="console-feedback-area" id="nodePromptFeedback">
+                                        💡 <em>"Panner Y-Speed를 -1.5로 지정해줘"</em>, <em>"발광 강도를 80으로 올려줘"</em>, <em>"Depth Fade 노드 추가해줘"</em>처럼 입력하면 현재 그래프와 복사용 블록을 갱신합니다.
+                                    </div>
+                                    <div class="console-input-area">
+                                        <input type="text" id="nodePromptInput" placeholder="셰이더 속성 변경 또는 노드 추가 명령을 입력하세요... (엔터 또는 갱신)">
+                                        <button id="btnSendNodePrompt">갱신</button>
+                                    </div>
+                                </div>
+
+                                <!-- Node Output & Unreal Copy Block -->
+                                <div class="node-action-panel">
+                                    <div class="node-meta-info">
+                                        <span class="node-title-badge" id="selectedNodeTitle">Glowing Panner Shader</span>
+                                        <p id="selectedNodeDesc">파티클의 텍스처 좌표를 시간에 따라 이동시켜 발광(Emissive) 효과를 내는 핵심 머터리얼 노드 구성입니다.</p>
+                                    </div>
+                                    <button class="btn-copy-ue-code" id="btnCopyUeNodes">
+                                        <span class="copy-glow"></span>
+                                        📋 Copy Unreal Material Nodes
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Right: [NEW] UE5 Node Master Inspector -->
+                            <div class="materials-inspector-sidebar">
+                                <div id="inspector-default-msg" class="inspector-empty-state">
+                                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width: 36px; height: 36px; stroke: var(--text-muted); margin-bottom: 12px; display: block; margin-left: auto; margin-right: auto;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                                    <p style="font-size: 12px; line-height: 1.5; color: var(--text-muted);">좌측 그래프에서 개별 <strong>노드</strong>를 선택하면 역할, 연결 이유, 실무 활용식을 확인할 수 있습니다.</p>
+                                </div>
+                                <div id="inspector-details" class="inspector-details-card" style="display: none;">
+                                    <div class="inspector-card-header" style="border-bottom: 1px solid var(--bg-card-border); padding-bottom: 10px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 4px;">
+                                        <span class="inspector-node-type-badge" id="insNodeType" style="align-self: flex-start; font-size: 9px; font-weight: 800; color: var(--cyan-wire); border: 1px solid rgba(0, 240, 255, 0.3); padding: 2px 6px; border-radius: 4px; text-transform: uppercase;">INPUT NODE</span>
+                                        <h4 class="inspector-node-title" id="insNodeTitle" style="font-size: 15px; font-weight: 800; color: #fff; margin: 4px 0 0 0;">TexCoord</h4>
+                                    </div>
+                                    <div class="inspector-section" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px;">
+                                        <span class="inspector-section-label" style="font-size: 10px; font-weight: 700; color: var(--material-green); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px;">🎯 노드 역할 (Role)</span>
+                                        <div class="inspector-section-content" id="insRoleText" style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.02); padding: 8px 10px; border-radius: 6px; white-space: pre-line;">...</div>
+                                    </div>
+                                    <div class="inspector-section" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px;">
+                                        <span class="inspector-section-label" style="font-size: 10px; font-weight: 700; color: var(--epic-orange); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px;">🔗 연결 설계 이유 (Rationale)</span>
+                                        <div class="inspector-section-content" id="insWhyText" style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.02); padding: 8px 10px; border-radius: 6px; white-space: pre-line;">...</div>
+                                    </div>
+                                    <div class="inspector-section" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px;">
+                                        <span class="inspector-section-label" style="font-size: 10px; font-weight: 700; color: var(--cyan-wire); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px;">🎬 활용 이펙트 공식 (VFX Formula)</span>
+                                        <div class="inspector-section-content" id="insEffectsText" style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.02); padding: 8px 10px; border-radius: 6px; white-space: pre-line;">...</div>
+                                    </div>
+                                    <div class="inspector-section" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px;">
+                                        <span class="inspector-section-label" style="font-size: 10px; font-weight: 700; color: var(--epic-orange); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px;">🌐 Official Unreal Documentation</span>
+                                        <div class="inspector-section-content inspector-doc-links" id="insDocLinks" style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.02); padding: 8px 10px; border-radius: 6px;">...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Copy Feedback Alert -->
+                        <div class="copy-alert" id="copyAlert">
+                            Unreal Material node clipboard data copied. Paste in the Material Editor with Ctrl+V.
+                        </div>
+                    </div>
+
+                    <!-- TAB 5: NIAGARA SYSTEM PLANNER -->
+                    <div class="tab-content" id="tab-niagara">
+                        <div class="section-desc">
+                            <h3>🌀 Niagara System Planner</h3>
+                            <p>VFX 카테고리, 아트 스타일, 플랫폼 사양을 기준으로 Niagara System/Emitter 구성안을 도출합니다.</p>
+                        </div>
+
+                        <div class="niagara-wizard-form">
+                            <div class="wizard-row">
+                                <div class="form-item">
+                                    <label for="wiz-category">이펙트 카테고리</label>
+                                    <select id="wiz-category">
+                                        <option value="slash">검기 슬래시 트레일 (Ribbon & Sprite)</option>
+                                        <option value="explosion">AAA급 폭발 & 잔해 (GPU, Fluid-like Smoke)</option>
+                                        <option value="portal">신비로운 소환 포탈 (Vortex Force)</option>
+                                        <option value="hologram">스마트 스캔/SF 홀로그램 (Grid Location)</option>
+                                        <option value="water">캐주얼/AAA 물방울 & 수면 충돌 (Fluid Ripple)</option>
+                                    </select>
+                                </div>
+                                <div class="form-item">
+                                    <label for="wiz-style">아트 비주얼 스타일</label>
+                                    <select id="wiz-style">
+                                        <option value="stylized">스타일라이즈드 (Cartoon, Anime, Cel-shaded)</option>
+                                        <option value="realistic">리얼리스틱 (Photorealistic, Cinema AAA)</option>
+                                    </select>
+                                </div>
+                                <div class="form-item">
+                                    <label for="wiz-tier">플랫폼 및 성능 환경</label>
+                                    <select id="wiz-tier">
+                                        <option value="casual">캐주얼 (모바일 / Nintendo Switch / 저사양)</option>
+                                        <option value="aaa">AAA 콘솔 & PC (GPU Compute High-End)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button class="btn-generate-recipe" id="btnGenerateRecipe">
+                                🌀 Generate Niagara System Brief
+                            </button>
+                        </div>
+
+                        <!-- Generated Niagara Recipe Output -->
+                        <div class="niagara-recipe-output" id="niagaraRecipeOutput">
+                            <!-- Rendered by JS -->
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Scripts with UTF-8 enforcement -->
+    <script src="js/ai-engine.js?v=1.0.1" charset="UTF-8"></script>
+    <script src="js/material-lab.js?v=1.0.1" charset="UTF-8"></script>
+    <script src="js/niagara-wizard.js?v=1.0.1" charset="UTF-8"></script>
+    <script src="js/docs-glossary.js?v=1.0.1" charset="UTF-8"></script>
+    <script src="app.js?v=1.0.1" charset="UTF-8"></script>
+</body>
+</html>
